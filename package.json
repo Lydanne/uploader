@@ -1,10 +1,15 @@
 {
-  "private":false,
+  "private": true,
   "name": "uploader",
   "scripts": {
-    "boot":"yarn"  
+    "boot": "yarn"
   },
-  "workspaces":{
-    "packages": ["packages/*"]
+  "workspaces": {
+    "packages": [
+      "packages/*"
+    ]
+  },
+  "devDependencies": {
+    "lerna": "^4.0.0"
   }
 }
