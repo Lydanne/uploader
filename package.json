@@ -1,0 +1,10 @@
+{
+  "private":false,
+  "name": "uploader",
+  "scripts": {
+    "boot":"yarn"  
+  },
+  "workspaces":{
+    "packages": ["packages/*"]
+  }
+}
