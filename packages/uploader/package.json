@@ -29,5 +29,6 @@
     "url": "https://github.com/WumaCoder/uploader/issues"
   },
   "devDependencies": {
+    "miniprogram-simulate": "^1.4.0"
   }
 }
