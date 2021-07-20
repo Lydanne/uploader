@@ -6,7 +6,7 @@ export default defineConfig({
   output: [
     {
       file: "./lib/uploader.cjs.js",
-      format: "umd",
+      format: "cjs",
     },
     {
       file: "./lib/uploader.esm.js",
