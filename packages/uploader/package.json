@@ -5,8 +5,9 @@
   "author": "WumaCoder <1829913225@qq.com>",
   "homepage": "https://github.com/WumaCoder/uploader#readme",
   "license": "MIT",
-  "main": "lib/uploader.cjs.js",
+  "main": "index.js",
   "module": "lib/uploader.esm.js",
+  "miniprogram": "lib",
   "directories": {
     "lib": "lib",
     "test": "tests"
