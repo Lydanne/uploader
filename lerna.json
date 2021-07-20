@@ -2,6 +2,18 @@
   "packages": [
     "packages/*"
   ],
+  "command": {
+    "publish": {
+      "ignoreChanges": [
+        "ignored-file",
+        "*.md"
+      ],
+      "message": "release: publish",
+      "registry": "https://registry.npmjs.org",
+      "verifyAccess": false,
+      "verifyRegister": false
+    }
+  },
   "version": "independent",
   "npmClient": "yarn",
   "useWorkspaces": true
