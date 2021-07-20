@@ -23,9 +23,11 @@
   },
   "scripts": {
     "build": "rollup -c",
-    "test": "echo \"Error: run tests from root\" && exit 1"
+    "test": "jest"
   },
   "bugs": {
     "url": "https://github.com/WumaCoder/uploader/issues"
+  },
+  "devDependencies": {
   }
 }
