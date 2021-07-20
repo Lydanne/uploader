@@ -16,6 +16,7 @@
     "@babel/preset-env": "^7.14.7",
     "@rollup/plugin-typescript": "^8.2.3",
     "@types/jest": "^26.0.24",
+    "@types/node": "^16.3.3",
     "babel-jest": "^27.0.6",
     "jest": "^27.0.6",
     "lerna": "^4.0.0",

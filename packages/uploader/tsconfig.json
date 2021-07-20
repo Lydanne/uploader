@@ -11,7 +11,10 @@
     "lib": [
       "ESNext",
       "DOM"
-    ]
+    ],
+    "paths": {
+      "@/*":["../src/*"]
+    }
   },
   "include": [
     "src/**/*.ts",

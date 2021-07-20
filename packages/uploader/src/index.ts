@@ -1,2 +1,5 @@
-const a:number = 1
-console.log(a)
+export default function sum (a, b){
+  return a+b
+}
+
+export * from './core/Uploader'

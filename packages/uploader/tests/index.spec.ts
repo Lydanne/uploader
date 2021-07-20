@@ -1,5 +1,7 @@
+import sum from '../src/index'
+
 describe('index.ts', () => {
   it('should ok', () => {
-      expect(true).toBe(true)
+      expect(sum(1,2)).toBe(3)
   });
 });
