@@ -1,5 +1,4 @@
-export default function sum (a, b){
-  return a+b
-}
-
 export * from './core/Uploader'
+export * from './core/UploadHandler'
+export * from './upload-handler/WeappUploadHandler'
+export * from './utils/EventHub'
