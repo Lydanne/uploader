@@ -7,10 +7,12 @@ export default defineConfig({
     {
       file: "./lib/uploader.cjs.js",
       format: "cjs",
+      sourcemap: true,
     },
     {
       file: "./lib/uploader.esm.js",
       format: "esm",
+      sourcemap: true,
     },
   ],
   plugins: [typescript()],
