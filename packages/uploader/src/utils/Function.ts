@@ -1,9 +1,9 @@
-export function optionHander<T>(option: T, defaultOption = {}) {
+export function optionHander<T>(option: T, defaultOption: T): T {
   const keys = Object.keys(option);
   return keys.reduce((prev, key) => {
     const val = option[key];
     if (val && typeof val === "object") {
-      prev[key] = optionHander(val, defaultOption[key]);
+      prev[key] = optionHander(val, defaultOption[key] && {});
     } else {
       prev[key] = val;
     }
