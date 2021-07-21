@@ -1,20 +1,20 @@
-import { EventHub } from '../utils/EventHub';
-import { Uploader } from './Uploader';
+import { EventHub } from "../utils/EventHub";
+import { Uploader } from "./Uploader";
 
 export enum UploadHook {
-  CREATED = 'created',
+  CREATED = "created",
   // BEFORE_UPLOAD = 'beforeUpload',
-  UPLOADED = 'uploaded',
-  ABOUT = 'about',
-  ERROR = 'error',
-  PROCESS = 'process',
-  DESTROYED = 'destroyed'
+  UPLOADED = "uploaded",
+  ABOUT = "about",
+  ERROR = "error",
+  PROCESS = "process",
+  DESTROYED = "destroyed",
 }
 
 export type CreatedArg = string; // type 上传类型, 是UploaderHandler.name()的返回值
 export type BeforeUploadArg = FileMeta[];
 export type UploadArg = FileMeta[];
-export type AboutArg = { hook: UploadHook; process: number; message: string; };
+export type AboutArg = { hook: UploadHook; process: number; message: string };
 export type ErrorArg = Error; // 错误信息
 export type ProcessArg = number; // 当前进度，0-100
 
@@ -34,7 +34,9 @@ export interface UploadHandlerConstructor {
 
 export type HookCb<T> = (data?: T, that?: Uploader<any>) => void;
 
-export abstract class UploadHandler<CUH = any, H = CUH | UploadHook> implements UploadHandlerConstructor {
+export abstract class UploadHandler<CUH = any, H = CUH | UploadHook>
+  implements UploadHandlerConstructor
+{
   private _hook = new EventHub<H>();
 
   name(): string {
@@ -50,6 +52,6 @@ export abstract class UploadHandler<CUH = any, H = CUH | UploadHook> implements 
     throw new Error("Method not implemented.");
   }
   hook(): EventHub<H> {
-    return this._hook
+    return this._hook;
   }
 }
