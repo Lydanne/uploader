@@ -46,5 +46,9 @@ describe('Uploader.ts', () => {
     expect(fn1).toBeCalled()
     expect(fn2).toBeCalled()
   });
+
+  it('should throw error', () => {
+    expect(()=>new Uploader({} as any)).toThrowError(new Error("@sharedkit/Uploader: uploadHandler load error"))
+  });
 });
 

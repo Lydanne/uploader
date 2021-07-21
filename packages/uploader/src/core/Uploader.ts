@@ -1,6 +1,4 @@
-import { EventHub } from '../utils/EventHub';
 import { UploadHandler, UploadHook, HookCb } from './UploadHandler';
-
 
 export interface UploaderConstructor<T extends UploadHandler = UploadHandler> {
   upload(): Uploader<T>; // 开始导入
@@ -17,6 +15,9 @@ export class Uploader<T extends UploadHandler> implements UploaderConstructor<T>
   private _uploadHandler: T;
 
   constructor(uploaderHandler: T) {
+    if(!(uploaderHandler instanceof UploadHandler)){
+      throw new Error('@sharedkit/Uploader: uploadHandler load error')
+    }
     this._uploadHandler = uploaderHandler;
     this._uploadHandler.hook().asyncEmit(UploadHook.CREATED, this);
   }
