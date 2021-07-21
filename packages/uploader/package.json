@@ -33,5 +33,9 @@
   "devDependencies": {
     "@types/wechat-miniprogram": "^3.4.0",
     "miniprogram-simulate": "^1.4.0"
+  },
+  "dependencies": {
+    "@rollup/plugin-node-resolve": "^13.0.2",
+    "@rollup/plugin-typescript": "^8.2.3"
   }
 }

@@ -14,7 +14,11 @@
     ],
     "paths": {
       "@/*":["../src/*"]
-    }
+    },
+
+    "declaration": true, // 生成定义文件
+    "declarationMap": false, // 生成定义sourceMap
+    "declarationDir": "./types" // 定义文件输出目录
   },
   "include": [
     "src/**/*.ts",
