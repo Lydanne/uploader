@@ -3,7 +3,7 @@ export function optionHander<T>(option: T, defaultOption: T): T {
   return keys.reduce((prev, key) => {
     const val = option[key];
     if (val && typeof val === "object") {
-      prev[key] = optionHander(val, defaultOption[key] && {});
+      prev[key] = optionHander(val, defaultOption[key] || {});
     } else {
       prev[key] = val;
     }
