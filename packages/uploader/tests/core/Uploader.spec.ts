@@ -16,7 +16,13 @@ class CustomUploadHandler extends UploadHandler<CustomUploadHook> {
     return new Promise((resolve) => {
       this.hook().emit(CustomUploadHook.TEST, 1);
       resolve([
-        { name: "aaa.xlsx", ext: "xlsx", size: 100, url: "oss/3423dfa.xlsx" },
+        {
+          name: "aaa.xlsx",
+          ext: "xlsx",
+          size: 100,
+          type: "file",
+          url: "oss/3423dfa.xlsx",
+        },
       ]);
     });
   }
@@ -44,7 +50,15 @@ describe("Uploader.ts", () => {
     await uploader.upload();
     expect(fn1).toBeCalled();
     expect(fn1).toBeCalledWith(
-      [{ name: "aaa.xlsx", ext: "xlsx", size: 100, url: "oss/3423dfa.xlsx" }],
+      [
+        {
+          name: "aaa.xlsx",
+          ext: "xlsx",
+          size: 100,
+          url: "oss/3423dfa.xlsx",
+          type: "file",
+        },
+      ],
       uploader
     );
   });

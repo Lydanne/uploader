@@ -21,8 +21,11 @@ export type ProcessArg = number; // 当前进度，0-100
 export interface FileMeta {
   name: string;
   size: number;
+  type: string;
   ext: string;
   url?: string;
+  path?: string;
+  time?: number;
 }
 
 export interface UploadHandlerConstructor {
