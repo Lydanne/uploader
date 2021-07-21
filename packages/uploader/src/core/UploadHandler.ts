@@ -19,13 +19,13 @@ export type ErrorArg = Error; // 错误信息
 export type ProcessArg = number; // 当前进度，0-100
 
 export interface FileMeta {
-  name: string;
-  size: number;
-  type: string;
-  ext: string;
-  url?: string;
-  path?: string;
-  time?: number;
+  name: string; // 文件名
+  size: number; // 文件大小
+  type: string; // 文件类型
+  ext: string; // 文件扩展
+  url?: string; // 文件在OSS上到位置
+  path?: string; // 文件在本地到位置
+  time?: number; // 文件在会话的时间
 }
 
 export interface UploadHandlerConstructor {
