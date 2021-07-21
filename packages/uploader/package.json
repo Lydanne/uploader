@@ -31,7 +31,7 @@
     "url": "https://github.com/WumaCoder/uploader/issues"
   },
   "devDependencies": {
-    "miniprogram-api-typings": "^3.4.1",
+    "@types/wechat-miniprogram": "^3.4.0",
     "miniprogram-simulate": "^1.4.0"
   }
 }
