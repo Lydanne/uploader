@@ -26,9 +26,6 @@ class CustomUploadHandler extends UploadHandler<CustomUploadHook> {
     });
   }
   about() {}
-  process() {
-    return 0;
-  }
 }
 
 describe("Uploader.ts", () => {

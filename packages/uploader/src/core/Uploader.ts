@@ -29,9 +29,6 @@ export class Uploader<T extends UploadHandler> {
     return this;
   }
 
-  process(): number {
-    return this._uploadHandler.process();
-  }
   onHook<H extends UploadHook>(hook: H, cb: HookCb<H>): Uploader<T> {
     this._uploadHandler.hook().on(hook, cb);
     return this;

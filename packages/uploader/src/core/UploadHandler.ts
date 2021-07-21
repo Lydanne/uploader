@@ -11,12 +11,19 @@ export enum UploadHook {
   DESTROYED = "destroyed",
 }
 
-export type CreatedArg = string; // type 上传类型, 是UploaderHandler.name()的返回值
-export type BeforeUploadArg = FileMeta[];
-export type UploadArg = FileMeta[];
-export type AboutArg = { hook: UploadHook; process: number; message: string };
-export type ErrorArg = Error; // 错误信息
-export type ProcessArg = number; // 当前进度，0-100
+export type CreatedHookArg = string; // type 上传类型, 是UploaderHandler.name()的返回值
+// export type BeforeUploadHookArg = FileMeta[];
+export type UploadedHookArg = FileMeta[];
+export type AboutHookArg = {
+  hook: UploadHook;
+  process: number;
+  message: string;
+};
+export type ErrorHookArg = Error; // 错误信息
+export type ProcessHookArg = {
+  file: FileMeta;
+  process: WechatMiniprogram.UploadTaskOnProgressUpdateCallbackResult;
+}; // 当前进度，0-100
 
 export interface FileMeta {
   name: string; // 文件名
@@ -42,7 +49,7 @@ export abstract class UploadHandler<CUH = any, H = CUH | UploadHook> {
   about(message?: string): void {
     throw new Error("Method not implemented.");
   }
-  process(): number {
+  process(): WechatMiniprogram.UploadTaskOnProgressUpdateCallbackResult {
     throw new Error("Method not implemented.");
   }
   hook(): EventHub<H> {
