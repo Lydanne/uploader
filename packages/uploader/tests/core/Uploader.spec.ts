@@ -3,7 +3,6 @@ import {
   HookCb,
   Uploader,
   UploadHandler,
-  UploadHandlerConstructor,
   UploadHook,
 } from "../../src";
 

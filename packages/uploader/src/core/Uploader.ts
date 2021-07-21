@@ -1,19 +1,7 @@
+import { FileMeta } from "@sharedkit/uploader/src/core/UploadHandler";
 import { UploadHandler, UploadHook, HookCb } from "./UploadHandler";
 
-export interface UploaderConstructor<T extends UploadHandler = UploadHandler> {
-  upload(): Uploader<T>; // 开始导入
-  about(message?: string): Uploader<T>; // 中断导入
-  process(): number; // 获取导入进度
-  onHook<H extends UploadHook>(hook: H, cb: HookCb<H>): Uploader<T>; // 监听钩子
-  offHook<H extends UploadHook>(hook: H, cb: HookCb<H>): Uploader<T>;
-  onceHook<H extends UploadHook>(hook: H, cb: HookCb<H>): void;
-  onceHook<H extends UploadHook>(hook: H): Promise<any>;
-  destroy(): void;
-}
-
-export class Uploader<T extends UploadHandler>
-  implements UploaderConstructor<T>
-{
+export class Uploader<T extends UploadHandler> {
   private _uploadHandler: T;
 
   constructor(uploaderHandler: T) {
@@ -24,16 +12,15 @@ export class Uploader<T extends UploadHandler>
     this._uploadHandler.hook().asyncEmit(UploadHook.CREATED, this);
   }
 
-  upload(): Uploader<T> {
-    this._uploadHandler
-      .upload()
-      .then((res) => {
-        this._uploadHandler.hook().emit(UploadHook.UPLOADED, res, this);
-      })
-      .catch((err) => {
-        this._uploadHandler.hook().emit(UploadHook.ERROR, err, this);
-      });
-    return this;
+  async upload(): Promise<FileMeta[]> {
+    try {
+      const res = await this._uploadHandler.upload();
+      this._uploadHandler.hook().emit(UploadHook.UPLOADED, res, this);
+      return res;
+    } catch (err) {
+      this._uploadHandler.hook().emit(UploadHook.ERROR, err, this);
+      return [];
+    }
   }
 
   about(message?: string): Uploader<T> {

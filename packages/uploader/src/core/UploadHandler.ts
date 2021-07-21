@@ -28,18 +28,9 @@ export interface FileMeta {
   time?: number; // 文件在会话的时间
 }
 
-export interface UploadHandlerConstructor {
-  name(): string; // 上传类型
-  upload(): Promise<FileMeta[]>; // 上传，这个方法会在 beforeUpload 的时候自动调用
-  about(): void;
-  process(): number;
-}
-
 export type HookCb<T> = (data?: T, that?: Uploader<any>) => void;
 
-export abstract class UploadHandler<CUH = any, H = CUH | UploadHook>
-  implements UploadHandlerConstructor
-{
+export abstract class UploadHandler<CUH = any, H = CUH | UploadHook> {
   private _hook = new EventHub<H>();
 
   name(): string {
@@ -48,7 +39,7 @@ export abstract class UploadHandler<CUH = any, H = CUH | UploadHook>
   upload(): Promise<FileMeta[]> {
     throw new Error("Method not implemented.");
   }
-  about(): void {
+  about(message?: string): void {
     throw new Error("Method not implemented.");
   }
   process(): number {
