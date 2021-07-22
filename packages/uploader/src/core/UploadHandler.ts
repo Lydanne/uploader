@@ -23,10 +23,10 @@ export type AboutHookArg = {
 export type ErrorHookArg = Error; // 错误信息
 
 export interface FileMeta {
-  name: string; // 文件名
-  size: number; // 文件大小
-  type: string; // 文件类型
-  ext: string; // 文件扩展
+  name?: string; // 文件名
+  size?: number; // 文件大小
+  type?: string; // 文件类型
+  ext?: string; // 文件扩展
   url?: string; // 文件在OSS的完整地址
   urlPath?: string; // 文件在OSS的上除去域名的部分
   path?: string; // 文件在本地到位置

@@ -9,25 +9,23 @@ export class LocalChooseUploadHandlerOption {
   cate?: Cate;
   size?: number = 1024 * 1024 * 3; // B, default 3MB
   prefix?: string = "";
+  uploadFileHandler: uploadFileHandler;
 }
 
-export type RequestHandler = (
+export type uploadFileHandler = (
   files: UploadAliyunFile[]
 ) => Promise<string> | void;
 
 export class LocalChooseUploadHandler extends UploadHandler {
-  private _option: LocalChooseUploadHandlerOption;
-  private _requestHandler: RequestHandler;
+  private _option: LocalChooseUploadHandlerOption =
+    new LocalChooseUploadHandlerOption();
+  private _requestHandler: uploadFileHandler;
 
-  constructor(
-    option: LocalChooseUploadHandlerOption,
-    requestHandler: RequestHandler
-  ) {
+  constructor(option: LocalChooseUploadHandlerOption) {
     super();
 
-    this.hook().on(UploadHook.ERROR, console.error.bind(console));
-    this._option = optionHander(option, new LocalChooseUploadHandlerOption());
-    this._requestHandler = requestHandler;
+    this._option = optionHander(option, this._option);
+    this._requestHandler = option.uploadFileHandler;
   }
 
   name() {

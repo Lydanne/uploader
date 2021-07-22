@@ -10,3 +10,7 @@ export function optionHander<T>(option: T, defaultOption: any): T {
     return prev;
   }, defaultOption);
 }
+
+export function sleep(interval) {
+  return new Promise((resolve) => setTimeout(resolve, interval));
+}

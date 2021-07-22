@@ -7,12 +7,13 @@ export declare class LocalChooseUploadHandlerOption {
     cate?: Cate;
     size?: number;
     prefix?: string;
+    uploadFileHandler: uploadFileHandler;
 }
-export declare type RequestHandler = (files: UploadAliyunFile[]) => Promise<string> | void;
+export declare type uploadFileHandler = (files: UploadAliyunFile[]) => Promise<string> | void;
 export declare class LocalChooseUploadHandler extends UploadHandler {
     private _option;
     private _requestHandler;
-    constructor(option: LocalChooseUploadHandlerOption, requestHandler: RequestHandler);
+    constructor(option: LocalChooseUploadHandlerOption);
     name(): string;
     upload(): Promise<any>;
     option(): LocalChooseUploadHandlerOption;

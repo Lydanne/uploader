@@ -8,6 +8,9 @@ export class Uploader<T extends UploadHandler> {
       throw new Error("@sharedkit/Uploader: uploadHandler load error");
     }
     this._uploadHandler = uploaderHandler;
+    this._uploadHandler
+      .hook()
+      .on(UploadHook.ERROR, console.error.bind(console));
     this._uploadHandler.hook().asyncEmit(UploadHook.CREATED, this);
   }
 

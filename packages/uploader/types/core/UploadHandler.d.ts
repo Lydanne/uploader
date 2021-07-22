@@ -18,10 +18,10 @@ export declare type AboutHookArg = {
 };
 export declare type ErrorHookArg = Error;
 export interface FileMeta {
-    name: string;
-    size: number;
-    type: string;
-    ext: string;
+    name?: string;
+    size?: number;
+    type?: string;
+    ext?: string;
     url?: string;
     urlPath?: string;
     path?: string;

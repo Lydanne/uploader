@@ -22,18 +22,17 @@ function mockWx() {
     }),
   };
 }
+const uploadFileHandler = () => Promise.resolve("");
 
 describe("LocalChooseUploadHandler.ts", () => {
   it("init WeappUploadHandler", () => {
     mockWx();
-    const uploaderHandler = new LocalChooseUploadHandler(
-      {
-        exts: [],
-        type: "all",
-        count: 1,
-      },
-      () => Promise.resolve("")
-    );
+    const uploaderHandler = new LocalChooseUploadHandler({
+      exts: [],
+      type: "all",
+      count: 1,
+      uploadFileHandler,
+    });
     expect(uploaderHandler.option()).toEqual({
       exts: [],
       type: "all",
@@ -41,20 +40,19 @@ describe("LocalChooseUploadHandler.ts", () => {
       size: 1024 * 1024 * 3,
       prefix: "",
       cate: undefined,
+      uploadFileHandler,
     });
   });
 
   it("should trigger uploaded hook.", async () => {
     mockWx();
     const uploaderHandler = new Uploader(
-      new LocalChooseUploadHandler(
-        {
-          exts: [],
-          type: "file",
-          count: 1,
-        },
-        () => Promise.resolve("")
-      )
+      new LocalChooseUploadHandler({
+        exts: [],
+        type: "file",
+        count: 1,
+        uploadFileHandler: () => Promise.resolve(""),
+      })
     );
     const files = await uploaderHandler.upload().onceHook(UploadHook.UPLOADED);
 
