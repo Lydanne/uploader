@@ -4,14 +4,19 @@ export class Uploader<T extends UploadHandler> {
   private _uploadHandler: T;
 
   constructor(uploaderHandler: T) {
-    if (!(uploaderHandler instanceof UploadHandler)) {
-      throw new Error("@sharedkit/Uploader: uploadHandler load error");
-    }
-    this._uploadHandler = uploaderHandler;
+    this.loadUploadHandler(uploaderHandler);
     this._uploadHandler
       .hook()
       .on(UploadHook.ERROR, console.error.bind(console));
     this._uploadHandler.hook().asyncEmit(UploadHook.CREATED, this);
+  }
+
+  loadUploadHandler(uploaderHandler: T) {
+    if (!(uploaderHandler instanceof UploadHandler)) {
+      throw new Error("@sharedkit/Uploader: uploadHandler load error");
+    }
+    this._uploadHandler = uploaderHandler;
+    return this;
   }
 
   upload(): Uploader<T> {
