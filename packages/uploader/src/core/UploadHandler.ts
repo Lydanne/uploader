@@ -51,3 +51,14 @@ export abstract class UploadHandler<CUH = any, H = CUH | UploadHook> {
     throw new Error("Method not implemented.");
   }
 }
+
+export class VerifyFileException extends Error {
+  readonly name: string = "VerifyFileException";
+  type: string;
+  file: WechatMiniprogram.ChooseFile;
+  constructor(type, file) {
+    super(`File ${type} no pass verify.`);
+    this.type = type;
+    this.file = file;
+  }
+}

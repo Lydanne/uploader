@@ -1,7 +1,12 @@
 import { UrlParser } from "./../utils/UrlParser";
 import { optionHander } from "../utils/Function";
 import { uuid } from "../utils/UniqueCode";
-import { UploadHandler, FileMeta, UploadHook } from "../core/UploadHandler";
+import {
+  UploadHandler,
+  FileMeta,
+  UploadHook,
+  VerifyFileException,
+} from "../core/UploadHandler";
 
 export class LocalChooseUploadHandlerOption {
   exts: string[] = [];
@@ -150,17 +155,6 @@ export class CantUseApiException extends Error {
   constructor(api: string) {
     super(`Cant use ${api} because doesn't support it.`);
     this.type = api;
-  }
-}
-
-export class VerifyFileException extends Error {
-  readonly name: string = "VerifyFileException";
-  type: string;
-  file: WechatMiniprogram.ChooseFile;
-  constructor(type, file) {
-    super(`File ${type} no pass verify.`);
-    this.type = type;
-    this.file = file;
   }
 }
 

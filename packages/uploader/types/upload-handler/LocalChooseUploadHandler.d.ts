@@ -32,12 +32,6 @@ export declare class CantUseApiException extends Error {
     type: string;
     constructor(api: string);
 }
-export declare class VerifyFileException extends Error {
-    readonly name: string;
-    type: string;
-    file: WechatMiniprogram.ChooseFile;
-    constructor(type: any, file: any);
-}
 export declare class UploadFileException extends Error {
     readonly name: string;
     type: string;

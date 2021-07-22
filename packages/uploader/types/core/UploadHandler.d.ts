@@ -1,3 +1,4 @@
+/// <reference types="wechat-miniprogram" />
 import { EventHub } from "../utils/EventHub";
 import { Uploader } from "./Uploader";
 export declare enum UploadHook {
@@ -34,5 +35,11 @@ export declare abstract class UploadHandler<CUH = any, H = CUH | UploadHook> {
     upload(): Promise<FileMeta[]>;
     hook(): EventHub<H>;
     destroy(): void;
+}
+export declare class VerifyFileException extends Error {
+    readonly name: string;
+    type: string;
+    file: WechatMiniprogram.ChooseFile;
+    constructor(type: any, file: any);
 }
 //# sourceMappingURL=UploadHandler.d.ts.map

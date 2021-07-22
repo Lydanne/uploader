@@ -1,10 +1,4 @@
-import {
-  FileMeta,
-  HookCb,
-  Uploader,
-  UploadHandler,
-  UploadHook,
-} from "../../src";
+import { FileMeta, Uploader, UploadHandler, UploadHook } from "../../src";
 
 enum CustomUploadHook {
   TEST = "test",

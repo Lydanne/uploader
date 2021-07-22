@@ -1,6 +1,10 @@
 import { UrlParser } from "./../utils/UrlParser";
 import { optionHander, sleep } from "../utils/Function";
-import { FileMeta, UploadHandler } from "../core/UploadHandler";
+import {
+  FileMeta,
+  UploadHandler,
+  VerifyFileException,
+} from "../core/UploadHandler";
 
 export type CreateCodeHandler = () => Promise<string>;
 export type RemoveCodeHandler = (code) => Promise<void> | void;
@@ -52,24 +56,45 @@ export class RemoteUploadHandler extends UploadHandler<RemoteHook> {
     const code = await this._option.createCodeHandler();
     this._code = code;
     this.hook().asyncEmit(RemoteHook.CREATED_CODE, code);
-    let files: FileMeta[] = [];
 
-    for (let i = 0; i < this._option.maxReadAssetUrlTimes; i++) {
-      const urls = await this._option.readAssetUrlHandler(code);
-      if (urls) {
-        files = urls.map((url) => {
-          let ext = UrlParser.ext(url);
+    const urls = await pool.call(this);
+    let files: FileMeta[] = transfromToFileMeta.call(this, urls);
+    verifyFile(files);
 
-          return {
-            url,
-            ext,
-          };
-        });
-        break;
-      }
-      await sleep(this._option.sleepInterval);
-    }
     return files;
+
+    async function pool() {
+      for (let i = 0; i < this._option.maxReadAssetUrlTimes; i++) {
+        const urls = await this._option.readAssetUrlHandler(code);
+        if (urls) {
+          return urls;
+        }
+
+        await sleep(this._option.sleepInterval);
+      }
+      return [];
+    }
+
+    function transfromToFileMeta(urls) {
+      return urls.map((url) => {
+        return {
+          url,
+          ext: UrlParser.ext(url),
+        };
+      });
+    }
+
+    function verifyFile(files: FileMeta[]) {
+      if (files.length > this._option.count) {
+        throw new VerifyFileException("count", files);
+      }
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        if (!this._option.exts.includes(file.ext)) {
+          throw new VerifyFileException("ext", file);
+        }
+      }
+    }
   }
 
   destroy() {
