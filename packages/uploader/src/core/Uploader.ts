@@ -11,15 +11,16 @@ export class Uploader<T extends UploadHandler> {
     this._uploadHandler.hook().asyncEmit(UploadHook.CREATED, this);
   }
 
-  async upload(): Promise<FileMeta[]> {
-    try {
-      const res = await this._uploadHandler.upload();
-      this._uploadHandler.hook().emit(UploadHook.UPLOADED, res, this);
-      return res;
-    } catch (err) {
-      this._uploadHandler.hook().emit(UploadHook.ERROR, err, this);
-      return [];
-    }
+  upload(): Uploader<T> {
+    this._uploadHandler
+      .upload()
+      .then((res) => {
+        this._uploadHandler.hook().emit(UploadHook.UPLOADED, res, this);
+      })
+      .catch((err) => {
+        this._uploadHandler.hook().emit(UploadHook.ERROR, err, this);
+      });
+    return this;
   }
 
   onHook<H extends UploadHook>(hook: H, cb: HookCb<H>): Uploader<T> {

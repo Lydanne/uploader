@@ -1,3 +1,4 @@
+import { UploadHook } from "@sharedkit/uploader/src/core/UploadHandler";
 import { LocalChooseUploadHandler } from "./../../src/upload-handler/LocalChooseUploadHandler";
 import { Uploader } from "../../src/core/Uploader";
 
@@ -55,7 +56,7 @@ describe("LocalChooseUploadHandler.ts", () => {
         () => Promise.resolve("")
       )
     );
-    const files = await uploaderHandler.upload();
+    const files = await uploaderHandler.upload().onceHook(UploadHook.UPLOADED);
 
     expect(files[0].url).not.toBe("");
   });

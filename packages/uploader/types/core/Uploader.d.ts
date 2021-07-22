@@ -1,8 +1,8 @@
-import { UploadHandler, UploadHook, HookCb, FileMeta } from "./UploadHandler";
+import { UploadHandler, UploadHook, HookCb } from "./UploadHandler";
 export declare class Uploader<T extends UploadHandler> {
     private _uploadHandler;
     constructor(uploaderHandler: T);
-    upload(): Promise<FileMeta[]>;
+    upload(): Uploader<T>;
     onHook<H extends UploadHook>(hook: H, cb: HookCb<H>): Uploader<T>;
     offHook<H extends UploadHook>(hook: H, cb: HookCb<H>): Uploader<T>;
     onceHook<H extends UploadHook>(hook: H, cb?: HookCb<H>): Promise<unknown>;
