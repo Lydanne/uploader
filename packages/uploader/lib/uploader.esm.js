@@ -234,9 +234,11 @@ class LocalChooseUploadHandler extends UploadHandler {
             };
             return files.map((file) => {
                 const cate = this._option.cate || typeToCate[file.type]; // 如果没有传入cate， 自动推算cate类型
+                const url = ossBucketMap[cate] + file.urlPath;
+                file.url = url;
                 return {
                     cate,
-                    url: ossBucketMap[cate] + file.urlPath,
+                    url,
                     file: file.path,
                     new_name: file.urlPath,
                     size: file.size,
