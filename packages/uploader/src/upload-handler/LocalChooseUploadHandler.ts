@@ -1,38 +1,33 @@
 import { optionHander } from "../utils/Function";
-import { UploadHandler, FileMeta, UploadHook } from "../core/UploadHandler";
 import { uuid } from "../utils/UniqueCode";
-
-export class OssSTSOption {
-  OSSAccessKeyId: string; // 可以直接从STS拿到
-  policy: string; // 可以直接从STS拿到
-  Signature: string; // 可以直接从STS拿到
-  key?: string = ""; // 不填
-  success_action_status?: string = "200"; // 不填
-}
-
-export class OssOption {
-  STS = new OssSTSOption();
-  url: string;
-  name?: string = "file";
-}
+import { UploadHandler, FileMeta, UploadHook } from "../core/UploadHandler";
 
 export class LocalChooseUploadHandlerOption {
-  oss = new OssOption();
   exts: string[] = [];
   count: number = 1;
   type: "all" | "video" | "image" | "file" = "all";
+  cate?: Cate;
   size?: number = 1024 * 1024 * 3; // B, default 3MB
+  prefix?: string = "";
 }
+
+export type RequestHandler = (
+  files: UploadAliyunFile[]
+) => Promise<string> | void;
 
 export class LocalChooseUploadHandler extends UploadHandler {
   private _option: LocalChooseUploadHandlerOption;
-  private _uploadTask: WechatMiniprogram.UploadTask;
+  private _requestHandler: RequestHandler;
 
-  constructor(option: LocalChooseUploadHandlerOption) {
+  constructor(
+    option: LocalChooseUploadHandlerOption,
+    requestHandler: RequestHandler
+  ) {
     super();
 
     this.hook().on("error", console.error.bind(console));
     this._option = optionHander(option, new LocalChooseUploadHandlerOption());
+    this._requestHandler = requestHandler;
   }
 
   name() {
@@ -43,30 +38,9 @@ export class LocalChooseUploadHandler extends UploadHandler {
     const tempFiles = await selectFile.call(this);
     const files = transfromFileMeta.call(this, tempFiles);
 
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      const res =
-        await new Promise<WechatMiniprogram.UploadFileSuccessCallbackResult>(
-          (resolve, reject) => {
-            this._uploadTask = wx.uploadFile({
-              url: this._option.oss.url,
-              filePath: file.path,
-              formData: this._option.oss.STS,
-              name: this._option.oss.name,
-              success: resolve,
-              fail: reject,
-            });
-            this._uploadTask.onProgressUpdate((process) => {
-              this.hook().emit(UploadHook.PROCESS, { file, process });
-            });
-          }
-        );
+    const uploadAliyunFiles = await transfromUploadAliyunFile.call(this, files);
 
-      if (Math.floor(res.statusCode / 100) !== 2) {
-        throw new UploadFileException(res);
-      }
-      file.url = `${this._option.oss.url}/${uuid()}.${file.ext}`;
-    }
+    await this._requestHandler.call(this, uploadAliyunFiles);
 
     return files;
 
@@ -86,6 +60,9 @@ export class LocalChooseUploadHandler extends UploadHandler {
     function transfromFileMeta(
       tempFiles: WechatMiniprogram.ChooseFile[] = []
     ): FileMeta[] {
+      if (tempFiles.length > this._option.count) {
+        throw new VerifyFileException("count", tempFiles);
+      }
       return tempFiles.map((tempFile) => {
         if (tempFile.size > this._option.size) {
           throw new VerifyFileException("size", tempFile);
@@ -107,14 +84,38 @@ export class LocalChooseUploadHandler extends UploadHandler {
           type: tempFile.type,
           path: tempFile.path,
           time: tempFile.time,
+          urlPath: `/${this._option.prefix}/${uuid()}.${ext}`,
         };
       });
     }
-  }
+    function transfromUploadAliyunFile(files: FileMeta[]): UploadAliyunFile[] {
+      const typeToCate = {
+        all: "disk",
+        video: "video",
+        image: "img",
+        file: "file",
+      };
+      const ossBucketMap = {
+        record: "https://campusrecord.welife001.com",
+        video: "https://campusvideo.welife001.com",
+        img: "https://campus002.welife001.com",
+        answer_img: "https://campus002.welife001.com",
+        file: "https://campusfile.welife001.com",
+        album: "https://album.welife001.com", //网盘相册
+        disk: "https://disk.welife001.com", //网盘文件
+      };
 
-  about(message?: string): void {
-    this._uploadTask.abort();
-    this.hook().emit(UploadHook.ABOUT, message);
+      return files.map((file) => {
+        const cate = this._option.cate || typeToCate[file.type]; // 如果没有传入cate， 自动推算cate类型
+        return {
+          cate,
+          url: ossBucketMap[cate] + file.urlPath,
+          file: file.path,
+          new_name: file.urlPath,
+          size: file.size,
+        };
+      });
+    }
   }
 
   option() {
@@ -122,7 +123,25 @@ export class LocalChooseUploadHandler extends UploadHandler {
   }
 }
 
-class CantUseApiException extends Error {
+type Cate =
+  | "record"
+  | "video"
+  | "img"
+  | "answer_img"
+  | "file"
+  | "album"
+  | "disk";
+export class UploadAliyunFile {
+  // TODO: 这是是 `utils/uploadoss/uploadAliyun.js` uploadFile 第一个参数的类型
+  //       目前的临时解决方案，之后封装了API之后修改
+  cate: Cate;
+  file: string;
+  new_name: string;
+  size: number;
+  duration?: number;
+}
+
+export class CantUseApiException extends Error {
   readonly name: string = "CantUseApiException";
   type: string;
   constructor(api: string) {
@@ -131,7 +150,7 @@ class CantUseApiException extends Error {
   }
 }
 
-class VerifyFileException extends Error {
+export class VerifyFileException extends Error {
   readonly name: string = "VerifyFileException";
   type: string;
   file: WechatMiniprogram.ChooseFile;
@@ -142,7 +161,7 @@ class VerifyFileException extends Error {
   }
 }
 
-class UploadFileException extends Error {
+export class UploadFileException extends Error {
   readonly name: string = "ResponseStatusCodeException";
   type: string;
   result: WechatMiniprogram.UploadFileSuccessCallbackResult;

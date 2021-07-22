@@ -1,5 +1,4 @@
-import { FileMeta } from "@sharedkit/uploader/src/core/UploadHandler";
-import { UploadHandler, UploadHook, HookCb } from "./UploadHandler";
+import { UploadHandler, UploadHook, HookCb, FileMeta } from "./UploadHandler";
 
 export class Uploader<T extends UploadHandler> {
   private _uploadHandler: T;
@@ -23,12 +22,6 @@ export class Uploader<T extends UploadHandler> {
     }
   }
 
-  about(message?: string): Uploader<T> {
-    this._uploadHandler.hook().emit(UploadHook.ABOUT, message, this);
-    this._uploadHandler.about();
-    return this;
-  }
-
   onHook<H extends UploadHook>(hook: H, cb: HookCb<H>): Uploader<T> {
     this._uploadHandler.hook().on(hook, cb);
     return this;
@@ -49,7 +42,6 @@ export class Uploader<T extends UploadHandler> {
     });
   }
   destroy(): void {
-    this.about();
     this._uploadHandler.hook().emit(UploadHook.DESTROYED);
     this._uploadHandler
       .hook()

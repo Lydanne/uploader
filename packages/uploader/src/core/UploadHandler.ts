@@ -20,17 +20,14 @@ export type AboutHookArg = {
   message: string;
 };
 export type ErrorHookArg = Error; // 错误信息
-export type ProcessHookArg = {
-  file: FileMeta;
-  process: WechatMiniprogram.UploadTaskOnProgressUpdateCallbackResult;
-}; // 当前进度，0-100
 
 export interface FileMeta {
   name: string; // 文件名
   size: number; // 文件大小
   type: string; // 文件类型
   ext: string; // 文件扩展
-  url?: string; // 文件在OSS上到位置
+  url?: string; // 文件在OSS的完整地址
+  urlPath?: string; // 文件在OSS的上除去域名的部分
   path?: string; // 文件在本地到位置
   time?: number; // 文件在会话的时间
 }
@@ -44,12 +41,6 @@ export abstract class UploadHandler<CUH = any, H = CUH | UploadHook> {
     throw new Error("Method not implemented.");
   }
   upload(): Promise<FileMeta[]> {
-    throw new Error("Method not implemented.");
-  }
-  about(message?: string): void {
-    throw new Error("Method not implemented.");
-  }
-  process(): WechatMiniprogram.UploadTaskOnProgressUpdateCallbackResult {
     throw new Error("Method not implemented.");
   }
   hook(): EventHub<H> {
