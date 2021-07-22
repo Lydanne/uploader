@@ -1,5 +1,5 @@
 import { defineConfig } from "rollup";
-import typescript from "@rollup/plugin-typescript";
+import typescript from "rollup-plugin-typescript2";
 import { nodeResolve } from "@rollup/plugin-node-resolve";
 
 export default defineConfig({
@@ -17,5 +17,10 @@ export default defineConfig({
     },
   ],
   external: ["wx"],
-  plugins: [nodeResolve(), typescript()],
+  plugins: [
+    nodeResolve(),
+    typescript({
+      useTsconfigDeclarationDir: true,
+    }),
+  ],
 });
