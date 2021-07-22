@@ -1,3 +1,4 @@
+import { UrlParser } from "./../utils/UrlParser";
 import { optionHander } from "../utils/Function";
 import { uuid } from "../utils/UniqueCode";
 import { UploadHandler, FileMeta, UploadHook } from "../core/UploadHandler";
@@ -68,7 +69,7 @@ export class LocalChooseUploadHandler extends UploadHandler {
         if (tempFile.type !== this._option.type) {
           throw new VerifyFileException("type", tempFile);
         }
-        let [_, ext] = tempFile.name.match(/.(\w+)$/);
+        let ext = UrlParser.ext(tempFile.name);
         if (
           this._option.exts?.length &&
           !this._option.exts.includes(ext.toLowerCase())

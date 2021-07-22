@@ -1,1 +1,1 @@
-{"version":3,"file":"UrlParser.d.ts","sourceRoot":"","sources":["../../src/utils/UrlParser.ts"],"names":[],"mappings":"AAUA,qBAAa,SAAS;IACpB,MAAM,CAAC,KAAK,CAAC,GAAG,EAAE,MAAM;;;;;;;;;CAoBzB"}
+{"version":3,"file":"UrlParser.d.ts","sourceRoot":"","sources":["../../src/utils/UrlParser.ts"],"names":[],"mappings":"AAUA,qBAAa,SAAS;IACpB,MAAM,CAAC,KAAK,CAAC,GAAG,EAAE,MAAM;;;;IAQxB,MAAM,CAAC,GAAG,CAAC,GAAG,EAAE,MAAM;CAIvB"}
