@@ -8,6 +8,7 @@
   "main": "index.js",
   "module": "lib/uploader.esm.js",
   "miniprogram": "lib",
+  "types": "./types/index.d.ts",
   "directories": {
     "lib": "lib",
     "test": "tests"
