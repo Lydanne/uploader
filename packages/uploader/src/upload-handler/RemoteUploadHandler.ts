@@ -2,7 +2,9 @@ import { optionHander, sleep } from "../utils/Function";
 import { FileMeta, UploadHandler } from "../core/UploadHandler";
 
 export type CreateCodeHandler = () => Promise<string>;
-export type ReadAssetUrlHandler = (string) => Promise<string[]>;
+export type ReadAssetUrlHandler = (
+  string
+) => Promise<string[] | undefined | false>;
 
 type Cate =
   | "record"
