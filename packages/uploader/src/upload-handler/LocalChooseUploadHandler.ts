@@ -40,7 +40,7 @@ export class LocalChooseUploadHandler extends UploadHandler {
 
     const uploadAliyunFiles = await transfromUploadAliyunFile.call(this, files);
 
-    await this._requestHandler.call(this, uploadAliyunFiles);
+    await this._requestHandler(uploadAliyunFiles);
 
     return files;
 
@@ -113,7 +113,7 @@ export class LocalChooseUploadHandler extends UploadHandler {
           cate,
           url,
           file: file.path,
-          new_name: file.urlPath,
+          new_name: file.urlPath.substr(1),
           size: file.size,
         };
       });
