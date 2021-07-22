@@ -118,6 +118,8 @@ export class LocalChooseUploadHandler extends UploadHandler {
     }
   }
 
+  destroy() {}
+
   option() {
     return this._option;
   }

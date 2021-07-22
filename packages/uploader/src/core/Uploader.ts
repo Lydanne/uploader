@@ -65,6 +65,7 @@ export class Uploader<T extends UploadHandler> {
   }
 
   destroy(): void {
+    this._uploadHandler.destroy();
     this._uploadHandler.hook().emit(UploadHook.DESTROYED);
     this._uploadHandler
       .hook()

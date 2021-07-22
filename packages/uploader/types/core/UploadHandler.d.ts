@@ -33,5 +33,6 @@ export declare abstract class UploadHandler<CUH = any, H = CUH | UploadHook> {
     name(): string;
     upload(): Promise<FileMeta[]>;
     hook(): EventHub<H>;
+    destroy(): void;
 }
 //# sourceMappingURL=UploadHandler.d.ts.map

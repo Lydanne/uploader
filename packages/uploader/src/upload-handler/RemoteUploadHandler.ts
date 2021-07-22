@@ -2,6 +2,7 @@ import { optionHander, sleep } from "../utils/Function";
 import { FileMeta, UploadHandler } from "../core/UploadHandler";
 
 export type CreateCodeHandler = () => Promise<string>;
+export type RemoveCodeHandler = (code) => Promise<void> | void;
 export type ReadAssetUrlHandler = (
   string
 ) => Promise<string[] | undefined | false>;
@@ -25,11 +26,17 @@ export class RemoteUploadHandlerOption {
   maxReadAssetUrlTimes?: number = 100;
   sleepInterval?: number = 1000; // ms default 1s
   createCodeHandler: CreateCodeHandler;
+  removeCodeHandler: RemoveCodeHandler;
   readAssetUrlHandler: ReadAssetUrlHandler;
 }
 
-export class RemoteUploadHandler extends UploadHandler {
+export enum RemoteHook {
+  CREATED_CODE = "createdCode",
+}
+
+export class RemoteUploadHandler extends UploadHandler<RemoteHook> {
   private _option: RemoteUploadHandlerOption = new RemoteUploadHandlerOption();
+  private _code: string;
   constructor(option: RemoteUploadHandlerOption) {
     super();
     this._option = optionHander(option, this._option);
@@ -40,7 +47,10 @@ export class RemoteUploadHandler extends UploadHandler {
   }
 
   async upload(): Promise<FileMeta[]> {
+    await this._option.removeCodeHandler(this._code);
     const code = await this._option.createCodeHandler();
+    this._code = code;
+    this.hook().asyncEmit(RemoteHook.CREATED_CODE, code);
     let files: FileMeta[] = [];
 
     for (let i = 0; i < this._option.maxReadAssetUrlTimes; i++) {
@@ -54,5 +64,9 @@ export class RemoteUploadHandler extends UploadHandler {
       await sleep(this._option.sleepInterval);
     }
     return files;
+  }
+
+  destroy() {
+    this._option.removeCodeHandler(this._code);
   }
 }

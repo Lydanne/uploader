@@ -47,4 +47,7 @@ export abstract class UploadHandler<CUH = any, H = CUH | UploadHook> {
   hook(): EventHub<H> {
     return this._hook;
   }
+  destroy() {
+    throw new Error("Method not implemented.");
+  }
 }

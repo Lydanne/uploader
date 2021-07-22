@@ -16,6 +16,7 @@ export declare class LocalChooseUploadHandler extends UploadHandler {
     constructor(option: LocalChooseUploadHandlerOption);
     name(): string;
     upload(): Promise<any>;
+    destroy(): void;
     option(): LocalChooseUploadHandlerOption;
 }
 declare type Cate = "record" | "video" | "img" | "answer_img" | "file" | "album" | "disk";
