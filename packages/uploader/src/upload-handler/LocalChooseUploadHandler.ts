@@ -84,7 +84,7 @@ export class LocalChooseUploadHandler extends UploadHandler {
           type: tempFile.type,
           path: tempFile.path,
           time: tempFile.time,
-          urlPath: `/${this._option.prefix}/${uuid()}.${ext}`,
+          urlPath: `${this._option.prefix}/${uuid()}.${ext}`,
         };
       });
     }
