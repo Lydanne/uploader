@@ -25,56 +25,35 @@ function mockWx() {
 describe("LocalChooseUploadHandler.ts", () => {
   it("init WeappUploadHandler", () => {
     mockWx();
-    const uploaderHandler = new LocalChooseUploadHandler({
-      oss: {
-        STS: {
-          OSSAccessKeyId: "acc", // 可以直接从STS拿到
-          policy: "poli", // 可以直接从STS拿到
-          Signature: "ssss", // 可以直接从STS拿到
-          key: "22",
-        },
-        url: "https://xxxswwx.com",
+    const uploaderHandler = new LocalChooseUploadHandler(
+      {
+        exts: [],
+        type: "all",
+        count: 1,
       },
-      exts: [],
-      type: "all",
-      count: 1,
-    });
+      () => Promise.resolve("")
+    );
     expect(uploaderHandler.option()).toEqual({
-      oss: {
-        STS: {
-          OSSAccessKeyId: "acc", // 可以直接从STS拿到
-          policy: "poli", // 可以直接从STS拿到
-          Signature: "ssss", // 可以直接从STS拿到
-          key: "22",
-          success_action_status: "200",
-        },
-        url: "https://xxxswwx.com",
-        name: "file",
-      },
       exts: [],
       type: "all",
       count: 1,
       size: 1024 * 1024 * 3,
+      prefix: "",
+      cate: undefined,
     });
   });
 
   it("should trigger uploaded hook.", async () => {
     mockWx();
     const uploaderHandler = new Uploader(
-      new LocalChooseUploadHandler({
-        oss: {
-          STS: {
-            OSSAccessKeyId: "acc", // 可以直接从STS拿到
-            policy: "poli", // 可以直接从STS拿到
-            Signature: "ssss", // 可以直接从STS拿到
-            key: "22",
-          },
-          url: "https://xxxswwx.com",
+      new LocalChooseUploadHandler(
+        {
+          exts: [],
+          type: "file",
+          count: 1,
         },
-        exts: [],
-        type: "file",
-        count: 1,
-      })
+        () => Promise.resolve("")
+      )
     );
     const files = await uploaderHandler.upload();
 
