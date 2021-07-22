@@ -29,7 +29,7 @@ export class LocalChooseUploadHandler extends UploadHandler {
   }
 
   name() {
-    return "mini";
+    return "local-choose";
   }
 
   async upload() {
