@@ -6,7 +6,7 @@ export declare class Uploader<T extends UploadHandler> {
     onHook<H extends UploadHook>(hook: H, cb: HookCb<H>): Uploader<T>;
     offHook<H extends UploadHook>(hook: H, cb: HookCb<H>): Uploader<T>;
     onceHook<H extends UploadHook>(hook: H, cb?: HookCb<H>): Promise<unknown>;
-    wait<H extends UploadHook>(hook: H): Promise<any>;
+    wait(): Promise<any>;
     destroy(): void;
 }
 //# sourceMappingURL=Uploader.d.ts.map

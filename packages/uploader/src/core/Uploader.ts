@@ -20,7 +20,7 @@ export class Uploader<T extends UploadHandler> {
       })
       .catch((err) => {
         this._uploadHandler.hook().asyncEmit(UploadHook.WAIT, err, null);
-        this._uploadHandler.hook().emit(UploadHook.ERROR, err, this);
+        this._uploadHandler.hook().asyncEmit(UploadHook.ERROR, err, this);
       });
     return this;
   }
@@ -45,9 +45,9 @@ export class Uploader<T extends UploadHandler> {
     });
   }
 
-  wait<H extends UploadHook>(hook: H): Promise<any> {
+  wait(): Promise<any> {
     return new Promise((resolve, reject) => {
-      this.onceHook(hook, (err, data) => {
+      this.onceHook(UploadHook.WAIT, (err, data) => {
         if (err) {
           return reject(err);
         }

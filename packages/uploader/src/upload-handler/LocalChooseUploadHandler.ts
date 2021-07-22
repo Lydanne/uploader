@@ -25,7 +25,7 @@ export class LocalChooseUploadHandler extends UploadHandler {
   ) {
     super();
 
-    this.hook().on("error", console.error.bind(console));
+    this.hook().on(UploadHook.ERROR, console.error.bind(console));
     this._option = optionHander(option, new LocalChooseUploadHandlerOption());
     this._requestHandler = requestHandler;
   }
