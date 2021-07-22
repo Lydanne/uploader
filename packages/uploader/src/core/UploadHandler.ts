@@ -9,6 +9,7 @@ export enum UploadHook {
   ERROR = "error",
   PROCESS = "process",
   DESTROYED = "destroyed",
+  WAIT = "wait",
 }
 
 export type CreatedHookArg = string; // type 上传类型, 是UploaderHandler.name()的返回值

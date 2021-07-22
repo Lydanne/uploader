@@ -6,7 +6,8 @@ export declare enum UploadHook {
     ABOUT = "about",
     ERROR = "error",
     PROCESS = "process",
-    DESTROYED = "destroyed"
+    DESTROYED = "destroyed",
+    WAIT = "wait"
 }
 export declare type CreatedHookArg = string;
 export declare type UploadedHookArg = FileMeta[];
