@@ -1,6 +1,6 @@
 {
   "name": "@sharedkit/uploader",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "weapp uploader tools.",
   "author": "WumaCoder <1829913225@qq.com>",
   "homepage": "https://github.com/WumaCoder/uploader#readme",
@@ -14,7 +14,9 @@
     "test": "tests"
   },
   "files": [
-    "lib"
+    "lib",
+    "src",
+    "types/*.d.ts"
   ],
   "publishConfig": {
     "access": "public"
