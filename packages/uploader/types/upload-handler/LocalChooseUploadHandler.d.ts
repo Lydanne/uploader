@@ -14,7 +14,6 @@ export declare class LocalChooseUploadHandler extends UploadHandler {
     private _option;
     private _requestHandler;
     constructor(option: LocalChooseUploadHandlerOption);
-    name(): string;
     upload(): Promise<any>;
     destroy(): void;
     option(): LocalChooseUploadHandlerOption;

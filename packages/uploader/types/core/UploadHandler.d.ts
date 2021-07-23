@@ -1,6 +1,5 @@
 /// <reference types="wechat-miniprogram" />
 import { EventHub } from "../utils/EventHub";
-import { Uploader } from "./Uploader";
 export declare enum UploadHook {
     CREATED = "created",
     UPLOADED = "uploaded",
@@ -28,10 +27,12 @@ export interface FileMeta {
     path?: string;
     time?: number;
 }
-export declare type HookCb<T> = (data?: T, that?: Uploader<any>) => void;
+export declare type HookCb<T> = (data?: T, that?: any) => void;
+export interface UploadHandlerConstruction<T> {
+    new (option?: T): UploadHandler;
+}
 export declare abstract class UploadHandler<CUH = any, H = CUH | UploadHook> {
     private _hook;
-    name(): string;
     upload(): Promise<FileMeta[]>;
     hook(): EventHub<H>;
     destroy(): void;

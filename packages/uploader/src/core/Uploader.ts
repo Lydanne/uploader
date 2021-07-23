@@ -1,49 +1,70 @@
-import { UploadHandler, UploadHook, HookCb, FileMeta } from "./UploadHandler";
+import { optionHander } from "../utils/Function";
+import {
+  RemoteUploadHandler,
+  RemoteUploadHandlerOption,
+} from "./../upload-handler/RemoteUploadHandler";
+import {
+  LocalChooseUploadHandler,
+  LocalChooseUploadHandlerOption,
+} from "./../upload-handler/LocalChooseUploadHandler";
+import {
+  UploadHandler,
+  UploadHook,
+  HookCb,
+  FileMeta,
+  UploadHandlerConstruction,
+} from "./UploadHandler";
 
-export class Uploader<T extends UploadHandler> {
-  private _uploadHandler: T;
+export class Uploader<O> {
+  private _uploadHandler: UploadHandler;
+  private _option: O;
 
-  constructor(uploaderHandler: T) {
-    this.loadUploadHandler(uploaderHandler);
+  constructor(UploadHandler: UploadHandlerConstruction<O>, option?: O) {
+    this._option = option;
+    this.loadUploadHandler(UploadHandler, option);
     this._uploadHandler
       .hook()
       .on(UploadHook.ERROR, console.error.bind(console));
-    this._uploadHandler.hook().asyncEmit(UploadHook.CREATED, this);
   }
 
-  loadUploadHandler(uploaderHandler: T) {
-    if (!(uploaderHandler instanceof UploadHandler)) {
+  loadUploadHandler(UploadHandler: UploadHandlerConstruction<O>, option?: O) {
+    this._option = optionHander(option, this._option);
+    this._uploadHandler = new UploadHandler(option);
+
+    if (!(this._uploadHandler instanceof UploadHandler)) {
       throw new Error("@sharedkit/Uploader: uploadHandler load error");
     }
-    this._uploadHandler = uploaderHandler;
+
+    this._uploadHandler.hook().asyncEmit(UploadHook.CREATED);
+
     return this;
   }
 
-  upload(): Uploader<T> {
+  upload(): Uploader<O> {
     this._uploadHandler
       .upload()
       .then((res) => {
-        this._uploadHandler.hook().emit(UploadHook.UPLOADED, res, this);
+        this._uploadHandler.hook().emit(UploadHook.UPLOADED, res);
         this._uploadHandler.hook().emit(UploadHook.WAIT, null, res);
       })
       .catch((err) => {
-        this._uploadHandler.hook().emit(UploadHook.ERROR, err, this);
+        this._uploadHandler.hook().emit(UploadHook.ERROR, err);
         this._uploadHandler.hook().emit(UploadHook.WAIT, err, null);
       });
     return this;
   }
 
-  onHook<H extends UploadHook>(hook: H, cb: HookCb<H>): Uploader<T> {
+  onHook<H extends UploadHook>(hook: H, cb: HookCb<H>): Uploader<O> {
     this._uploadHandler.hook().on(hook, cb);
     return this;
   }
 
-  offHook<H extends UploadHook>(hook: H, cb: HookCb<H>): Uploader<T> {
+  offHook<H extends UploadHook>(hook: H, cb: HookCb<H>): Uploader<O> {
     this._uploadHandler.hook().off(hook, cb);
     return this;
   }
 
-  onceHook<H extends UploadHook>(hook: H, cb: HookCb<H>): Uploader<T> {
+  onceHook<H extends UploadHook>(hook: H, cb: HookCb<H>): Uploader<O> {
     this._uploadHandler.hook().once(hook, cb);
     return this;
   }

@@ -1,4 +1,3 @@
-import { UploadHook } from "@sharedkit/uploader/src/core/UploadHandler";
 import { LocalChooseUploadHandler } from "./../../src/upload-handler/LocalChooseUploadHandler";
 import { Uploader } from "../../src/core/Uploader";
 
@@ -46,15 +45,13 @@ describe("LocalChooseUploadHandler.ts", () => {
 
   it("should trigger uploaded hook.", async () => {
     mockWx();
-    const uploaderHandler = new Uploader(
-      new LocalChooseUploadHandler({
-        exts: [],
-        type: "file",
-        count: 1,
-        uploadFileHandler: () => Promise.resolve(""),
-      })
-    );
-    const files = await uploaderHandler.upload().onceHook(UploadHook.UPLOADED);
+    const uploaderHandler = new Uploader(LocalChooseUploadHandler, {
+      exts: [],
+      type: "file",
+      count: 1,
+      uploadFileHandler: () => Promise.resolve(""),
+    });
+    const files = await uploaderHandler.upload().wait();
 
     expect(files[0].url).not.toBe("");
   });

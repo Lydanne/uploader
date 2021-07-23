@@ -6,6 +6,7 @@ import {
   FileMeta,
   UploadHook,
   VerifyFileException,
+  UploadHandlerConstruction,
 } from "../core/UploadHandler";
 
 export class LocalChooseUploadHandlerOption {
@@ -32,10 +33,6 @@ export class LocalChooseUploadHandler extends UploadHandler {
 
     this._option = optionHander(option, this._option);
     this._requestHandler = option.uploadFileHandler;
-  }
-
-  name() {
-    return "local-choose";
   }
 
   async upload() {
@@ -168,3 +165,5 @@ export class UploadFileException extends Error {
     this.result = res;
   }
 }
+
+Promise;

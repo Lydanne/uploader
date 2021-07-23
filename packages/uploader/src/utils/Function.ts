@@ -1,4 +1,4 @@
-export function optionHander<T>(option: T, defaultOption: any): T {
+export function optionHander<T>(option: T, defaultOption: any = {}): T {
   const keys = Object.keys(option);
   return keys.reduce((prev, key) => {
     const val = option[key];

@@ -33,14 +33,15 @@ export interface FileMeta {
   time?: number; // 文件在会话的时间
 }
 
-export type HookCb<T> = (data?: T, that?: Uploader<any>) => void;
+export type HookCb<T> = (data?: T, that?: any) => void;
+
+export interface UploadHandlerConstruction<T> {
+  new (option?: T): UploadHandler;
+}
 
 export abstract class UploadHandler<CUH = any, H = CUH | UploadHook> {
   private _hook = new EventHub<H>();
 
-  name(): string {
-    throw new Error("Method not implemented.");
-  }
   upload(): Promise<FileMeta[]> {
     throw new Error("Method not implemented.");
   }
