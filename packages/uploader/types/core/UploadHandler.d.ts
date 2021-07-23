@@ -29,12 +29,15 @@ export interface FileMeta {
 }
 export declare type HookCb<T> = (data?: T, that?: any) => void;
 export interface UploadHandlerConstruction<T> {
-    new (option?: T): UploadHandler;
+    new (option?: T): UploadHandler<T>;
 }
-export declare abstract class UploadHandler<CUH = any, H = CUH | UploadHook> {
+export declare abstract class UploadHandler<T, CUH = any, H = CUH | UploadHook> {
     private _hook;
-    upload(): Promise<FileMeta[]>;
+    private _option;
+    constructor(option: T);
+    option(option?: T): T;
     hook(): EventHub<H>;
+    upload(): Promise<FileMeta[]>;
     destroy(): void;
 }
 export declare class VerifyFileException extends Error {

@@ -8,9 +8,12 @@ interface CustomOption {
   size: number;
 }
 
-class CustomUploadHandler extends UploadHandler<CustomUploadHook> {
+class CustomUploadHandler extends UploadHandler<
+  CustomOption,
+  CustomUploadHook
+> {
   constructor(params: CustomOption) {
-    super();
+    super(params);
   }
   upload(): Promise<FileMeta[]> {
     return new Promise((resolve) => {

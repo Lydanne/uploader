@@ -39,33 +39,33 @@ export enum RemoteHook {
   CREATED_CODE = "createdCode",
 }
 
-export class RemoteUploadHandler extends UploadHandler<RemoteHook> {
-  private _option: RemoteUploadHandlerOption = new RemoteUploadHandlerOption();
+export class RemoteUploadHandler extends UploadHandler<
+  RemoteUploadHandlerOption,
+  RemoteHook
+> {
   private _code: string;
   constructor(option: RemoteUploadHandlerOption) {
-    super();
-    this._option = optionHander(option, this._option);
-  }
-
-  name() {
-    return "remote";
+    super(optionHander(option, new RemoteUploadHandlerOption()));
   }
 
   async upload(): Promise<FileMeta[]> {
-    await this._option.removeCodeHandler(this._code);
-    const code = await this._option.createCodeHandler();
+    await this.option().removeCodeHandler(this._code);
+    const code = await this.option().createCodeHandler();
     this._code = code;
     this.hook().asyncEmit(RemoteHook.CREATED_CODE, code);
 
     const urls = await pool.call(this);
     let files: FileMeta[] = transfromToFileMeta.call(this, urls);
-    verifyFile(files);
+    verifyFile.call(this, files);
 
     return files;
 
     async function pool() {
       for (let i = 0; i < this._option.maxReadAssetUrlTimes; i++) {
         const urls = await this._option.readAssetUrlHandler(code);
+        if (urls === false) {
+          return [];
+        }
         if (urls) {
           return urls;
         }
@@ -98,6 +98,6 @@ export class RemoteUploadHandler extends UploadHandler<RemoteHook> {
   }
 
   destroy() {
-    this._option.removeCodeHandler(this._code);
+    this.option().removeCodeHandler(this._code);
   }
 }

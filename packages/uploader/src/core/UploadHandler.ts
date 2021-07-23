@@ -1,5 +1,4 @@
 import { EventHub } from "../utils/EventHub";
-import { Uploader } from "./Uploader";
 
 export enum UploadHook {
   CREATED = "created",
@@ -36,17 +35,30 @@ export interface FileMeta {
 export type HookCb<T> = (data?: T, that?: any) => void;
 
 export interface UploadHandlerConstruction<T> {
-  new (option?: T): UploadHandler;
+  new (option?: T): UploadHandler<T>;
 }
 
-export abstract class UploadHandler<CUH = any, H = CUH | UploadHook> {
+export abstract class UploadHandler<T, CUH = any, H = CUH | UploadHook> {
   private _hook = new EventHub<H>();
+  private _option: T;
+
+  constructor(option: T) {
+    this.option(option);
+  }
+
+  option(option?: T): T {
+    if (option) {
+      this._option = option;
+    }
+    return this._option;
+  }
+
+  hook(): EventHub<H> {
+    return this._hook;
+  }
 
   upload(): Promise<FileMeta[]> {
     throw new Error("Method not implemented.");
-  }
-  hook(): EventHub<H> {
-    return this._hook;
   }
   destroy() {
     throw new Error("Method not implemented.");

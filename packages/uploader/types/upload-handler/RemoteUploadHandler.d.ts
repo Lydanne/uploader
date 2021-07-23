@@ -14,11 +14,9 @@ export declare class RemoteUploadHandlerOption {
 export declare enum RemoteHook {
     CREATED_CODE = "createdCode"
 }
-export declare class RemoteUploadHandler extends UploadHandler<RemoteHook> {
-    private _option;
+export declare class RemoteUploadHandler extends UploadHandler<RemoteUploadHandlerOption, RemoteHook> {
     private _code;
     constructor(option: RemoteUploadHandlerOption);
-    name(): string;
     upload(): Promise<FileMeta[]>;
     destroy(): void;
 }

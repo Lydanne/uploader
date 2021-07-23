@@ -16,7 +16,7 @@ import {
 } from "./UploadHandler";
 
 export class Uploader<O> {
-  private _uploadHandler: UploadHandler;
+  private _uploadHandler: UploadHandler<O>;
   private _option: O;
 
   constructor(UploadHandler: UploadHandlerConstruction<O>, option?: O) {
@@ -29,18 +29,20 @@ export class Uploader<O> {
 
   loadUploadHandler(UploadHandler: UploadHandlerConstruction<O>, option?: O) {
     this._option = optionHander(option, this._option);
-    this._uploadHandler = new UploadHandler(option);
+    this._uploadHandler = new UploadHandler(this._option);
 
     if (!(this._uploadHandler instanceof UploadHandler)) {
       throw new Error("@sharedkit/Uploader: uploadHandler load error");
     }
 
-    this._uploadHandler.hook().asyncEmit(UploadHook.CREATED);
+    this._uploadHandler.hook().asyncEmit(UploadHook.CREATED, this);
 
     return this;
   }
 
-  upload(): Uploader<O> {
+  upload(option?: O): Uploader<O> {
+    this._option = optionHander(option, this._option);
+    this._uploadHandler.option(this._option);
     this._uploadHandler
       .upload()
       .then((res) => {
@@ -68,8 +70,10 @@ export class Uploader<O> {
     this._uploadHandler.hook().once(hook, cb);
     return this;
   }
-
-  wait(): Promise<any> {
+  /**
+   * 等待Uplaoder上传完成
+   * */
+  wait(): Promise<FileMeta[]> {
     return new Promise((resolve, reject) => {
       this.onceHook(UploadHook.WAIT, (err, data) => {
         if (err) {

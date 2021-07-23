@@ -23,16 +23,9 @@ export type uploadFileHandler = (
   files: UploadAliyunFile[]
 ) => Promise<string> | void;
 
-export class LocalChooseUploadHandler extends UploadHandler {
-  private _option: LocalChooseUploadHandlerOption =
-    new LocalChooseUploadHandlerOption();
-  private _requestHandler: uploadFileHandler;
-
+export class LocalChooseUploadHandler extends UploadHandler<LocalChooseUploadHandlerOption> {
   constructor(option: LocalChooseUploadHandlerOption) {
-    super();
-
-    this._option = optionHander(option, this._option);
-    this._requestHandler = option.uploadFileHandler;
+    super(optionHander(option, new LocalChooseUploadHandlerOption()));
   }
 
   async upload() {
@@ -41,7 +34,7 @@ export class LocalChooseUploadHandler extends UploadHandler {
 
     const uploadAliyunFiles = await transfromUploadAliyunFile.call(this, files);
 
-    await this._requestHandler(uploadAliyunFiles);
+    await this.option().uploadFileHandler(uploadAliyunFiles);
 
     return files;
 
@@ -122,10 +115,6 @@ export class LocalChooseUploadHandler extends UploadHandler {
   }
 
   destroy() {}
-
-  option() {
-    return this._option;
-  }
 }
 
 type Cate =

@@ -10,13 +10,10 @@ export declare class LocalChooseUploadHandlerOption {
     uploadFileHandler: uploadFileHandler;
 }
 export declare type uploadFileHandler = (files: UploadAliyunFile[]) => Promise<string> | void;
-export declare class LocalChooseUploadHandler extends UploadHandler {
-    private _option;
-    private _requestHandler;
+export declare class LocalChooseUploadHandler extends UploadHandler<LocalChooseUploadHandlerOption> {
     constructor(option: LocalChooseUploadHandlerOption);
     upload(): Promise<any>;
     destroy(): void;
-    option(): LocalChooseUploadHandlerOption;
 }
 declare type Cate = "record" | "video" | "img" | "answer_img" | "file" | "album" | "disk";
 export declare class UploadAliyunFile {
