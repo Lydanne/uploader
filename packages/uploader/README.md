@@ -1,6 +1,6 @@
 # Uploader
 
-代码位置
+https://github.com/WumaCoder/uploader
 
 ## 特点
 
@@ -8,6 +8,13 @@
 - 事件钩子处理
 - 简单
 - 流的方式调用
+
+## 安装
+
+```shell
+yarn add @sharedkit/uploader 
+# npm i @sharedkit/uploader
+```
 
 ## 简单使用
 
