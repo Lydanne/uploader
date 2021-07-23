@@ -1,12 +1,5 @@
 import { optionHander } from "../utils/Function";
-import {
-  RemoteUploadHandler,
-  RemoteUploadHandlerOption,
-} from "./../upload-handler/RemoteUploadHandler";
-import {
-  LocalChooseUploadHandler,
-  LocalChooseUploadHandlerOption,
-} from "./../upload-handler/LocalChooseUploadHandler";
+
 import {
   UploadHandler,
   UploadHook,
