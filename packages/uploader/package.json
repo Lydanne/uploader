@@ -16,7 +16,7 @@
   "files": [
     "lib",
     "src",
-    "types/**/*.d.ts"
+    "types"
   ],
   "publishConfig": {
     "access": "public"
