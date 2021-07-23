@@ -1,6 +1,6 @@
 {
   "name": "@sharedkit/uploader",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "weapp uploader tools.",
   "author": "WumaCoder <1829913225@qq.com>",
   "homepage": "https://github.com/WumaCoder/uploader#readme",
@@ -8,7 +8,7 @@
   "main": "index.js",
   "module": "lib/uploader.esm.js",
   "miniprogram": "lib",
-  "types": "./types/index.d.ts",
+  "typings": "./types/index.d.ts",
   "directories": {
     "lib": "lib",
     "test": "tests"
