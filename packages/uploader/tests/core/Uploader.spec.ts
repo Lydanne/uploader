@@ -39,7 +39,7 @@ describe("Uploader.ts", () => {
     });
     expect(uploader).toBeDefined();
     const fn = jest.fn();
-    uploader.onHook(UploadHook.CREATED, fn);
+    uploader.on(UploadHook.CREATED, fn);
     await Promise.resolve();
     expect(fn).toBeCalled();
   });
@@ -48,7 +48,7 @@ describe("Uploader.ts", () => {
     const fn1 = jest.fn();
     const uploader = new Uploader(CustomUploadHandler, { size: 100 })
       .upload()
-      .onHook(UploadHook.UPLOADED, fn1);
+      .on(UploadHook.UPLOADED, fn1);
     await Promise.resolve();
     expect(fn1).toBeCalled();
     expect(fn1).toBeCalledWith([
@@ -66,8 +66,8 @@ describe("Uploader.ts", () => {
     const uploader = new Uploader(CustomUploadHandler, { size: 200 });
     const fn1 = jest.fn();
     const fn2 = jest.fn();
-    uploader.onceHook(UploadHook.DESTROYED, fn1);
-    uploader.onHook(UploadHook.DESTROYED, fn2);
+    uploader.once(UploadHook.DESTROYED, fn1);
+    uploader.on(UploadHook.DESTROYED, fn2);
     uploader.destroy();
     expect(fn1).toBeCalled();
     expect(fn2).toBeCalled();

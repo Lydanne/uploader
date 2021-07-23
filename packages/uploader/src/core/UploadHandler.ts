@@ -1,14 +1,14 @@
 import { EventHub } from "../utils/EventHub";
 
 export enum UploadHook {
-  CREATED = "created",
+  CREATED = "created", // 创建完成后
   // BEFORE_UPLOAD = 'beforeUpload',
-  UPLOADED = "uploaded",
-  ABOUT = "about",
-  ERROR = "error",
-  PROCESS = "process",
-  DESTROYED = "destroyed",
-  WAIT = "wait",
+  UPLOADED = "uploaded", //上传完成后
+  // ABOUT = "about",
+  ERROR = "error", // 报错之后
+  // PROCESS = "process",
+  DESTROYED = "destroyed", // 销毁之后
+  WAIT = "wait", // 上传完成之后，无论成功或失败，与uploaded回调参数有不同
 }
 
 export type CreatedHookArg = string; // type 上传类型, 是UploaderHandler.name()的返回值
@@ -53,13 +53,26 @@ export abstract class UploadHandler<T, CUH = any, H = CUH | UploadHook> {
     return this._option;
   }
 
+  /**
+   * 获取事件处理器
+   * @returns EventHub
+   */
   hook(): EventHub<H> {
     return this._hook;
   }
 
+  /**
+   * 需要重写的方法，如果不重写会报错，核心的上传方法
+   * @returns Promise
+   */
   upload(): Promise<FileMeta[]> {
     throw new Error("Method not implemented.");
   }
+
+  /**
+   * 需要重写的方法，如果不重写会报错，销毁方法
+   * @returns void
+   */
   destroy() {
     throw new Error("Method not implemented.");
   }

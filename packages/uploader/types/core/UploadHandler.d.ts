@@ -3,9 +3,7 @@ import { EventHub } from "../utils/EventHub";
 export declare enum UploadHook {
     CREATED = "created",
     UPLOADED = "uploaded",
-    ABOUT = "about",
     ERROR = "error",
-    PROCESS = "process",
     DESTROYED = "destroyed",
     WAIT = "wait"
 }
@@ -36,8 +34,20 @@ export declare abstract class UploadHandler<T, CUH = any, H = CUH | UploadHook> 
     private _option;
     constructor(option: T);
     option(option?: T): T;
+    /**
+     * 获取事件处理器
+     * @returns EventHub
+     */
     hook(): EventHub<H>;
+    /**
+     * 需要重写的方法，如果不重写会报错，核心的上传方法
+     * @returns Promise
+     */
     upload(): Promise<FileMeta[]>;
+    /**
+     * 需要重写的方法，如果不重写会报错，销毁方法
+     * @returns void
+     */
     destroy(): void;
 }
 export declare class VerifyFileException extends Error {

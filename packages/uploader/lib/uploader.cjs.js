@@ -76,9 +76,9 @@ exports.UploadHook = void 0;
     UploadHook["CREATED"] = "created";
     // BEFORE_UPLOAD = 'beforeUpload',
     UploadHook["UPLOADED"] = "uploaded";
-    UploadHook["ABOUT"] = "about";
+    // ABOUT = "about",
     UploadHook["ERROR"] = "error";
-    UploadHook["PROCESS"] = "process";
+    // PROCESS = "process",
     UploadHook["DESTROYED"] = "destroyed";
     UploadHook["WAIT"] = "wait";
 })(exports.UploadHook || (exports.UploadHook = {}));
@@ -94,12 +94,24 @@ class UploadHandler {
         }
         return this._option;
     }
+    /**
+     * 获取事件处理器
+     * @returns EventHub
+     */
     hook() {
         return this._hook;
     }
+    /**
+     * 需要重写的方法，如果不重写会报错，核心的上传方法
+     * @returns Promise
+     */
     upload() {
         throw new Error("Method not implemented.");
     }
+    /**
+     * 需要重写的方法，如果不重写会报错，销毁方法
+     * @returns void
+     */
     destroy() {
         throw new Error("Method not implemented.");
     }
@@ -118,12 +130,22 @@ class VerifyFileException extends Error {
 class Uploader {
     _uploadHandler;
     _option;
+    /**
+     * @param  {UploadHandlerConstruction<O>} UploadHandler // 传输器
+     * @param  {O} option? 传给 UploadHandler 的选项
+     */
     constructor(UploadHandler, option) {
         this.loadUploadHandler(UploadHandler, option);
         this._uploadHandler
             .hook()
             .on(exports.UploadHook.ERROR, console.error.bind(console));
     }
+    /**
+     * 同上
+     * @param  {UploadHandlerConstruction<O>} UploadHandler
+     * @param  {O} option?
+     * @returns Uploader
+     */
     loadUploadHandler(UploadHandler, option) {
         this._option = optionHander(option, this._option);
         this._uploadHandler = new UploadHandler(this._option);
@@ -133,6 +155,10 @@ class Uploader {
         this._uploadHandler.hook().asyncEmit(exports.UploadHook.CREATED, this);
         return this;
     }
+    /**
+     * 开始上传
+     * @returns Uploader
+     */
     upload() {
         this._uploadHandler
             .upload()
@@ -146,15 +172,33 @@ class Uploader {
         });
         return this;
     }
-    onHook(hook, cb) {
+    /**
+     * 监听一个钩子
+     * @param  {H} hook 钩子类型
+     * @param  {HookCb<H>} cb 回调函数
+     * @returns Uploader
+     */
+    on(hook, cb) {
         this._uploadHandler.hook().on(hook, cb);
         return this;
     }
-    offHook(hook, cb) {
+    /**
+     * 移除一个钩子
+     * @param  {H} hook
+     * @param  {HookCb<H>} cb
+     * @returns Uploader
+     */
+    off(hook, cb) {
         this._uploadHandler.hook().off(hook, cb);
         return this;
     }
-    onceHook(hook, cb) {
+    /**
+     * 监听一个钩子, 但只监听一次
+     * @param  {H} hook 钩子类型
+     * @param  {HookCb<H>} cb 回调函数
+     * @returns Uploader
+     */
+    once(hook, cb) {
         this._uploadHandler.hook().once(hook, cb);
         return this;
     }
@@ -163,7 +207,7 @@ class Uploader {
      * */
     wait() {
         return new Promise((resolve, reject) => {
-            this.onceHook(exports.UploadHook.WAIT, (err, data) => {
+            this.once(exports.UploadHook.WAIT, (err, data) => {
                 if (err) {
                     return reject(err);
                 }
@@ -171,9 +215,17 @@ class Uploader {
             });
         });
     }
+    /**
+     * 获取或者修改选项
+     * @param  {O} option? 传入的选项
+     */
     option(option) {
         return this._uploadHandler.option(option);
     }
+    /**
+     * 销毁
+     * @returns void
+     */
     destroy() {
         this._uploadHandler.destroy();
         this._uploadHandler.hook().emit(exports.UploadHook.DESTROYED);
@@ -221,14 +273,15 @@ function uuid(len, radix = CHARS.length) {
 }
 
 class LocalChooseUploadHandlerOption {
-    exts = [];
-    count = 1;
-    type = "all";
-    cate;
-    size = 1024 * 1024 * 3; // B, default 3MB
-    prefix = "";
-    uploadFileHandler;
+    exts = []; // 限制文件后缀，最后会传给微信API
+    count = 1; // 限制文件数量，最后会传给微信API
+    type = "all"; // 类型，给微信API的
+    cate; // 会传给 aliyunOss 这个方法
+    size = 1024 * 1024 * 3; // B, default 3MB 限制大小
+    prefix = ""; // 资源路径前缀
+    uploadFileHandler; // 上传文件的钩子函数
 }
+// 上传处理程序的约束
 class LocalChooseUploadHandler extends UploadHandler {
     constructor(option) {
         super(optionHander(option, new LocalChooseUploadHandlerOption()));
@@ -338,17 +391,17 @@ class UploadFileException extends Error {
 }
 
 class RemoteUploadHandlerOption {
-    exts = [];
-    count = 1;
+    exts = []; // 限制文件后缀
+    count = 1; // 限制文件数量
     // type: "all" | "video" | "image" | "file" = "all";
     // cate?: Cate;
     // size?: number = 1024 * 1024 * 3; // B, default 3MB
     // prefix?: string = "";
-    maxReadAssetUrlTimes = 1000;
-    sleepInterval = 1000; // ms default 1s
-    createCodeHandler;
-    removeCodeHandler;
-    readAssetUrlHandler;
+    maxReadAssetUrlTimes = 1000; // 限制轮询次数
+    sleepInterval = 1000; // ms default 1s 轮询间隔
+    createCodeHandler; // 创建传输码的钩子
+    removeCodeHandler; // 移除传输码的钩子
+    readAssetUrlHandler; // 读取传输码的钩子
 }
 exports.RemoteHook = void 0;
 (function (RemoteHook) {

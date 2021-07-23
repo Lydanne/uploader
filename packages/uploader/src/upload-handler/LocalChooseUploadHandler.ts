@@ -10,18 +10,19 @@ import {
 } from "../core/UploadHandler";
 
 export class LocalChooseUploadHandlerOption {
-  exts: string[] = [];
-  count: number = 1;
-  type: "all" | "video" | "image" | "file" = "all";
-  cate?: Cate;
-  size?: number = 1024 * 1024 * 3; // B, default 3MB
-  prefix?: string = "";
-  uploadFileHandler: uploadFileHandler;
+  exts: string[] = []; // 限制文件后缀，最后会传给微信API
+  count: number = 1; // 限制文件数量，最后会传给微信API
+  type: "all" | "video" | "image" | "file" = "all"; // 类型，给微信API的
+  cate?: Cate; // 会传给 aliyunOss 这个方法
+  size?: number = 1024 * 1024 * 3; // B, default 3MB 限制大小
+  prefix?: string = ""; // 资源路径前缀
+  uploadFileHandler: uploadFileHandler; // 上传文件的钩子函数
 }
 
 export type uploadFileHandler = (
   files: UploadAliyunFile[]
 ) => Promise<string> | void;
+// 上传处理程序的约束
 
 export class LocalChooseUploadHandler extends UploadHandler<LocalChooseUploadHandlerOption> {
   constructor(option: LocalChooseUploadHandlerOption) {
@@ -118,13 +119,13 @@ export class LocalChooseUploadHandler extends UploadHandler<LocalChooseUploadHan
 }
 
 type Cate =
-  | "record"
-  | "video"
-  | "img"
-  | "answer_img"
-  | "file"
-  | "album"
-  | "disk";
+  | "record" // 录音
+  | "video" // 视频
+  | "img" // 图片
+  | "answer_img" // 答题图片
+  | "file" // 文件，除图片视频录音
+  | "album" // 网盘相册
+  | "disk"; // 网盘
 export class UploadAliyunFile {
   // TODO: 这是是 `utils/uploadoss/uploadAliyun.js` uploadFile 第一个参数的类型
   //       目前的临时解决方案，之后封装了API之后修改

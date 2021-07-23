@@ -22,17 +22,17 @@ type Cate =
   | "disk";
 
 export class RemoteUploadHandlerOption {
-  exts: string[] = [];
-  count: number = 1;
+  exts: string[] = []; // 限制文件后缀
+  count: number = 1; // 限制文件数量
   // type: "all" | "video" | "image" | "file" = "all";
   // cate?: Cate;
   // size?: number = 1024 * 1024 * 3; // B, default 3MB
   // prefix?: string = "";
-  maxReadAssetUrlTimes?: number = 1000;
-  sleepInterval?: number = 1000; // ms default 1s
-  createCodeHandler: CreateCodeHandler;
-  removeCodeHandler: RemoveCodeHandler;
-  readAssetUrlHandler: ReadAssetUrlHandler;
+  maxReadAssetUrlTimes?: number = 1000; // 限制轮询次数
+  sleepInterval?: number = 1000; // ms default 1s 轮询间隔
+  createCodeHandler: CreateCodeHandler; // 创建传输码的钩子
+  removeCodeHandler: RemoveCodeHandler; // 移除传输码的钩子
+  readAssetUrlHandler: ReadAssetUrlHandler; // 读取传输码的钩子
 }
 
 export enum RemoteHook {
