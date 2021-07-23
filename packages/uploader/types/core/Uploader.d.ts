@@ -4,7 +4,7 @@ export declare class Uploader<O> {
     private _option;
     constructor(UploadHandler: UploadHandlerConstruction<O>, option?: O);
     loadUploadHandler(UploadHandler: UploadHandlerConstruction<O>, option?: O): this;
-    upload(option?: O): Uploader<O>;
+    upload(): Uploader<O>;
     onHook<H extends UploadHook>(hook: H, cb: HookCb<H>): Uploader<O>;
     offHook<H extends UploadHook>(hook: H, cb: HookCb<H>): Uploader<O>;
     onceHook<H extends UploadHook>(hook: H, cb: HookCb<H>): Uploader<O>;
@@ -12,6 +12,7 @@ export declare class Uploader<O> {
      * 等待Uplaoder上传完成
      * */
     wait(): Promise<FileMeta[]>;
+    option(option?: O): O;
     destroy(): void;
 }
 //# sourceMappingURL=Uploader.d.ts.map

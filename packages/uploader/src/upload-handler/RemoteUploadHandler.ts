@@ -28,7 +28,7 @@ export class RemoteUploadHandlerOption {
   // cate?: Cate;
   // size?: number = 1024 * 1024 * 3; // B, default 3MB
   // prefix?: string = "";
-  maxReadAssetUrlTimes?: number = 100;
+  maxReadAssetUrlTimes?: number = 1000;
   sleepInterval?: number = 1000; // ms default 1s
   createCodeHandler: CreateCodeHandler;
   removeCodeHandler: RemoveCodeHandler;

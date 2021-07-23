@@ -13,7 +13,6 @@ export class Uploader<O> {
   private _option: O;
 
   constructor(UploadHandler: UploadHandlerConstruction<O>, option?: O) {
-    this._option = option;
     this.loadUploadHandler(UploadHandler, option);
     this._uploadHandler
       .hook()
@@ -33,9 +32,7 @@ export class Uploader<O> {
     return this;
   }
 
-  upload(option?: O): Uploader<O> {
-    this._option = optionHander(option, this._option);
-    this._uploadHandler.option(this._option);
+  upload(): Uploader<O> {
     this._uploadHandler
       .upload()
       .then((res) => {
@@ -75,6 +72,10 @@ export class Uploader<O> {
         resolve(data);
       });
     });
+  }
+
+  option(option?: O) {
+    return this._uploadHandler.option(option);
   }
 
   destroy(): void {

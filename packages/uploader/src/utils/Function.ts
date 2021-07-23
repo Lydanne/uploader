@@ -1,6 +1,6 @@
 export function optionHander<T>(option: T, defaultOption: any = {}): T {
   if (!option || typeof option !== "object") {
-    return option;
+    return option || defaultOption;
   }
   const keys = Object.keys(option);
   return keys.reduce((prev, key) => {
