@@ -43,14 +43,9 @@ export class Uploader<T extends UploadHandler> {
     return this;
   }
 
-  onceHook<H extends UploadHook>(hook: H, cb?: HookCb<H>) {
-    if (cb) {
-      this._uploadHandler.hook().once(hook, cb);
-      return;
-    }
-    return new Promise((resolve) => {
-      this._uploadHandler.hook().once(hook, resolve);
-    });
+  onceHook<H extends UploadHook>(hook: H, cb: HookCb<H>): Uploader<T> {
+    this._uploadHandler.hook().once(hook, cb);
+    return this;
   }
 
   wait(): Promise<any> {

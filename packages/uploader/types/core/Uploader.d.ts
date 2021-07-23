@@ -6,7 +6,7 @@ export declare class Uploader<T extends UploadHandler> {
     upload(): Uploader<T>;
     onHook<H extends UploadHook>(hook: H, cb: HookCb<H>): Uploader<T>;
     offHook<H extends UploadHook>(hook: H, cb: HookCb<H>): Uploader<T>;
-    onceHook<H extends UploadHook>(hook: H, cb?: HookCb<H>): Promise<unknown>;
+    onceHook<H extends UploadHook>(hook: H, cb: HookCb<H>): Uploader<T>;
     wait(): Promise<any>;
     destroy(): void;
 }
