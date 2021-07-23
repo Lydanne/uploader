@@ -23,12 +23,12 @@ export class Uploader<T extends UploadHandler> {
     this._uploadHandler
       .upload()
       .then((res) => {
-        this._uploadHandler.hook().asyncEmit(UploadHook.WAIT, null, res);
         this._uploadHandler.hook().emit(UploadHook.UPLOADED, res, this);
+        this._uploadHandler.hook().emit(UploadHook.WAIT, null, res);
       })
       .catch((err) => {
-        this._uploadHandler.hook().asyncEmit(UploadHook.WAIT, err, null);
-        this._uploadHandler.hook().asyncEmit(UploadHook.ERROR, err, this);
+        this._uploadHandler.hook().emit(UploadHook.ERROR, err, this);
+        this._uploadHandler.hook().emit(UploadHook.WAIT, err, null);
       });
     return this;
   }

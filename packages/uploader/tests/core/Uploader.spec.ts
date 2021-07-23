@@ -34,10 +34,11 @@ describe("Uploader.ts", () => {
   });
 
   it("upload hook", async () => {
-    const uploader = new Uploader(new CustomUploadHandler());
     const fn1 = jest.fn();
-    uploader.onHook(UploadHook.UPLOADED, fn1);
-    await uploader.upload();
+    const uploader = new Uploader(new CustomUploadHandler())
+      .upload()
+      .onHook(UploadHook.UPLOADED, fn1);
+    await Promise.resolve();
     expect(fn1).toBeCalled();
     expect(fn1).toBeCalledWith(
       [
