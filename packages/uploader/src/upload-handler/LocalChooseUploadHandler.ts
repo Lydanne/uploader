@@ -154,5 +154,3 @@ export class UploadFileException extends Error {
     this.result = res;
   }
 }
-
-Promise;
