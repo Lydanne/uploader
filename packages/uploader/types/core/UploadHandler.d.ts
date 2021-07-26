@@ -3,6 +3,7 @@ import { EventHub } from "../utils/EventHub";
 export declare enum UploadHook {
     CREATED = "created",
     UPLOADED = "uploaded",
+    ABOUT = "about",
     ERROR = "error",
     DESTROYED = "destroyed",
     WAIT = "wait"
@@ -49,6 +50,7 @@ export declare abstract class UploadHandler<T, CUH = any, H = CUH | UploadHook> 
      * @returns void
      */
     destroy(): void;
+    about(): void;
 }
 export declare class VerifyFileException extends Error {
     readonly name: string;

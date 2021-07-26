@@ -14,6 +14,7 @@ export declare type uploadFileHandler = (files: UploadAliyunFile[]) => Promise<s
 export declare class LocalChooseUploadHandler extends UploadHandler<LocalChooseUploadHandlerOption> {
     constructor(option: LocalChooseUploadHandlerOption);
     upload(): Promise<any>;
+    about(): void;
     destroy(): void;
 }
 declare type Cate = "record" | "video" | "img" | "answer_img" | "file" | "album" | "disk";

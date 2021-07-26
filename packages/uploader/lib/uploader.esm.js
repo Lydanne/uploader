@@ -72,7 +72,7 @@ var UploadHook;
     UploadHook["CREATED"] = "created";
     // BEFORE_UPLOAD = 'beforeUpload',
     UploadHook["UPLOADED"] = "uploaded";
-    // ABOUT = "about",
+    UploadHook["ABOUT"] = "about";
     UploadHook["ERROR"] = "error";
     // PROCESS = "process",
     UploadHook["DESTROYED"] = "destroyed";
@@ -111,6 +111,9 @@ class UploadHandler {
     destroy() {
         throw new Error("Method not implemented.");
     }
+    about() {
+        throw new Error("Method not implemented.");
+    }
 }
 class VerifyFileException extends Error {
     name = "VerifyFileException";
@@ -143,6 +146,8 @@ class Uploader {
      * @returns Uploader
      */
     loadUploadHandler(UploadHandler, option) {
+        if (this._uploadHandler)
+            this._uploadHandler.about();
         this._option = optionHander(option, this._option);
         this._uploadHandler = new UploadHandler(this._option);
         if (!(this._uploadHandler instanceof UploadHandler)) {
@@ -230,6 +235,11 @@ class Uploader {
             .events()
             .forEach((_, k) => this._uploadHandler.hook().remove(k));
         this._uploadHandler = null;
+    }
+    about() {
+        this._uploadHandler.about();
+        this._uploadHandler.hook().emit(UploadHook.ABOUT);
+        return this;
     }
 }
 
@@ -363,6 +373,7 @@ class LocalChooseUploadHandler extends UploadHandler {
             });
         }
     }
+    about() { }
     destroy() { }
 }
 class UploadAliyunFile {
@@ -413,6 +424,7 @@ var RemoteHook;
 })(RemoteHook || (RemoteHook = {}));
 class RemoteUploadHandler extends UploadHandler {
     _code;
+    _aboutPool = false;
     constructor(option) {
         super(optionHander(option, new RemoteUploadHandlerOption()));
     }
@@ -433,6 +445,9 @@ class RemoteUploadHandler extends UploadHandler {
                 }
                 if (urls) {
                     return urls;
+                }
+                if (this._aboutPool) {
+                    return [];
                 }
                 await sleep(this._option.sleepInterval);
             }
@@ -462,7 +477,11 @@ class RemoteUploadHandler extends UploadHandler {
         }
     }
     destroy() {
+        this.about();
         this.option().removeCodeHandler(this._code);
+    }
+    about() {
+        this._aboutPool = true;
     }
 }
 

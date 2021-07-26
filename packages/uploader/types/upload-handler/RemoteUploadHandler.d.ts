@@ -17,8 +17,10 @@ export declare enum RemoteHook {
 }
 export declare class RemoteUploadHandler extends UploadHandler<RemoteUploadHandlerOption, RemoteHook> {
     private _code;
+    private _aboutPool;
     constructor(option: RemoteUploadHandlerOption);
     upload(): Promise<FileMeta[]>;
     destroy(): void;
+    about(): void;
 }
 //# sourceMappingURL=RemoteUploadHandler.d.ts.map

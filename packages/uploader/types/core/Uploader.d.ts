@@ -54,5 +54,6 @@ export declare class Uploader<O> {
      * @returns void
      */
     destroy(): void;
+    about(): Uploader<O>;
 }
 //# sourceMappingURL=Uploader.d.ts.map
