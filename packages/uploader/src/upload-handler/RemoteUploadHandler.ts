@@ -34,7 +34,7 @@ export class RemoteUploadHandlerOption {
   createCodeHandler: CreateCodeHandler; // 创建传输码的钩子
   removeCodeHandler: RemoveCodeHandler; // 移除传输码的钩子
   readAssetUrlHandler: ReadAssetUrlHandler; // 读取传输码的钩子
-  verifyContentHandler: VerifyContentHandler; // 验证文件内容
+  verifyContentHandler: VerifyContentHandler = async () => true; // 验证文件内容
 }
 
 export enum RemoteHook {

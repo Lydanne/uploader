@@ -276,7 +276,7 @@ class LocalChooseUploadHandlerOption {
     size = 1024 * 1024 * 3; // B, default 3MB 限制大小
     prefix = ""; // 资源路径前缀
     uploadFileHandler; // 上传文件的钩子函数
-    verifyContentHandler;
+    verifyContentHandler = async () => true;
 }
 // 上传处理程序的约束
 class LocalChooseUploadHandler extends UploadHandler {
@@ -405,7 +405,7 @@ class RemoteUploadHandlerOption {
     createCodeHandler; // 创建传输码的钩子
     removeCodeHandler; // 移除传输码的钩子
     readAssetUrlHandler; // 读取传输码的钩子
-    verifyContentHandler; // 验证文件内容
+    verifyContentHandler = async () => true; // 验证文件内容
 }
 var RemoteHook;
 (function (RemoteHook) {
