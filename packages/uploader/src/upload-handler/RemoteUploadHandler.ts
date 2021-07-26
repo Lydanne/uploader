@@ -1,6 +1,7 @@
 import { UrlParser } from "./../utils/UrlParser";
 import { optionHander, sleep } from "../utils/Function";
 import {
+  AboutException,
   FileMeta,
   UploadHandler,
   VerifyContentHandler,
@@ -74,7 +75,7 @@ export class RemoteUploadHandler extends UploadHandler<
         }
         if (this._aboutPool) {
           this._aboutPool = false;
-          return [];
+          throw new AboutException();
         }
 
         await sleep(this._option.sleepInterval);

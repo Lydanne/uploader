@@ -128,6 +128,13 @@ class VerifyFileException extends Error {
         this.file = file;
     }
 }
+class AboutException extends Error {
+    type;
+    constructor() {
+        super(`About Run`);
+        this.type = "about";
+    }
+}
 
 class Uploader {
     _uploadHandler;
@@ -455,7 +462,7 @@ class RemoteUploadHandler extends UploadHandler {
                 }
                 if (this._aboutPool) {
                     this._aboutPool = false;
-                    return [];
+                    throw new AboutException();
                 }
                 await sleep(this._option.sleepInterval);
             }
@@ -493,5 +500,5 @@ class RemoteUploadHandler extends UploadHandler {
     }
 }
 
-export { CantUseApiException, EventHub, LocalChooseUploadHandler, LocalChooseUploadHandlerOption, RemoteHook, RemoteUploadHandler, RemoteUploadHandlerOption, UploadAliyunFile, UploadFileException, UploadHandler, UploadHook, Uploader, VerifyFileException };
+export { AboutException, CantUseApiException, EventHub, LocalChooseUploadHandler, LocalChooseUploadHandlerOption, RemoteHook, RemoteUploadHandler, RemoteUploadHandlerOption, UploadAliyunFile, UploadFileException, UploadHandler, UploadHook, Uploader, VerifyFileException };
 //# sourceMappingURL=uploader.esm.js.map

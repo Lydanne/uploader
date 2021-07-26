@@ -96,4 +96,12 @@ export class VerifyFileException extends Error {
   }
 }
 
+export class AboutException extends Error {
+  type: string;
+  constructor() {
+    super(`About Run`);
+    this.type = "about";
+  }
+}
+
 export type VerifyContentHandler = (file: FileMeta) => Promise<boolean>;

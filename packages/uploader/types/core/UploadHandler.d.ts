@@ -58,5 +58,9 @@ export declare class VerifyFileException extends Error {
     file: WechatMiniprogram.ChooseFile;
     constructor(type: any, file: any);
 }
+export declare class AboutException extends Error {
+    type: string;
+    constructor();
+}
 export declare type VerifyContentHandler = (file: FileMeta) => Promise<boolean>;
 //# sourceMappingURL=UploadHandler.d.ts.map

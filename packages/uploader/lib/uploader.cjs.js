@@ -132,6 +132,13 @@ class VerifyFileException extends Error {
         this.file = file;
     }
 }
+class AboutException extends Error {
+    type;
+    constructor() {
+        super(`About Run`);
+        this.type = "about";
+    }
+}
 
 class Uploader {
     _uploadHandler;
@@ -459,7 +466,7 @@ class RemoteUploadHandler extends UploadHandler {
                 }
                 if (this._aboutPool) {
                     this._aboutPool = false;
-                    return [];
+                    throw new AboutException();
                 }
                 await sleep(this._option.sleepInterval);
             }
@@ -497,6 +504,7 @@ class RemoteUploadHandler extends UploadHandler {
     }
 }
 
+exports.AboutException = AboutException;
 exports.CantUseApiException = CantUseApiException;
 exports.EventHub = EventHub;
 exports.LocalChooseUploadHandler = LocalChooseUploadHandler;
