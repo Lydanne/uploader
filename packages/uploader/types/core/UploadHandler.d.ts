@@ -39,7 +39,7 @@ export declare abstract class UploadHandler<T, CUH = any, H = CUH | UploadHook> 
      * 获取事件处理器
      * @returns EventHub
      */
-    hook(): EventHub<H>;
+    hook(hook?: EventHub): EventHub<H>;
     /**
      * 需要重写的方法，如果不重写会报错，核心的上传方法
      * @returns Promise

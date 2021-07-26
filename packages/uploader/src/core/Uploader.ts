@@ -33,9 +33,14 @@ export class Uploader<O> {
     UploadHandler: UploadHandlerConstruction<O>,
     option?: O
   ): Uploader<O> {
-    if (this._uploadHandler) this._uploadHandler.about();
+    let hook = null;
+    if (this._uploadHandler) {
+      this._uploadHandler.about();
+      hook = this._uploadHandler.hook();
+    }
     this._option = optionHander(option, this._option);
     this._uploadHandler = new UploadHandler(this._option);
+    this._uploadHandler.hook(hook);
 
     if (!(this._uploadHandler instanceof UploadHandler)) {
       throw new Error("@sharedkit/Uploader: uploadHandler load error");

@@ -73,6 +73,7 @@ export class RemoteUploadHandler extends UploadHandler<
           return urls;
         }
         if (this._aboutPool) {
+          this._aboutPool = false;
           return [];
         }
 

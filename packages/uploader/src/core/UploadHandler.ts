@@ -57,7 +57,10 @@ export abstract class UploadHandler<T, CUH = any, H = CUH | UploadHook> {
    * 获取事件处理器
    * @returns EventHub
    */
-  hook(): EventHub<H> {
+  hook(hook?: EventHub): EventHub<H> {
+    if (hook) {
+      this._hook = hook;
+    }
     return this._hook;
   }
 

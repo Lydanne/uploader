@@ -98,7 +98,10 @@ class UploadHandler {
      * 获取事件处理器
      * @returns EventHub
      */
-    hook() {
+    hook(hook) {
+        if (hook) {
+            this._hook = hook;
+        }
         return this._hook;
     }
     /**
@@ -150,10 +153,14 @@ class Uploader {
      * @returns Uploader
      */
     loadUploadHandler(UploadHandler, option) {
-        if (this._uploadHandler)
+        let hook = null;
+        if (this._uploadHandler) {
             this._uploadHandler.about();
+            hook = this._uploadHandler.hook();
+        }
         this._option = optionHander(option, this._option);
         this._uploadHandler = new UploadHandler(this._option);
+        this._uploadHandler.hook(hook);
         if (!(this._uploadHandler instanceof UploadHandler)) {
             throw new Error("@sharedkit/Uploader: uploadHandler load error");
         }
@@ -451,6 +458,7 @@ class RemoteUploadHandler extends UploadHandler {
                     return urls;
                 }
                 if (this._aboutPool) {
+                    this._aboutPool = false;
                     return [];
                 }
                 await sleep(this._option.sleepInterval);
