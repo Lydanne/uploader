@@ -3,6 +3,7 @@ import { optionHander, sleep } from "../utils/Function";
 import {
   FileMeta,
   UploadHandler,
+  VerifyContentHandler,
   VerifyFileException,
 } from "../core/UploadHandler";
 
@@ -33,6 +34,7 @@ export class RemoteUploadHandlerOption {
   createCodeHandler: CreateCodeHandler; // 创建传输码的钩子
   removeCodeHandler: RemoveCodeHandler; // 移除传输码的钩子
   readAssetUrlHandler: ReadAssetUrlHandler; // 读取传输码的钩子
+  verifyContentHandler: VerifyContentHandler; // 验证文件内容
 }
 
 export enum RemoteHook {
@@ -56,7 +58,7 @@ export class RemoteUploadHandler extends UploadHandler<
 
     const urls = await pool.call(this);
     let files: FileMeta[] = transfromToFileMeta.call(this, urls);
-    verifyFile.call(this, files);
+    await verifyFile.call(this, files);
 
     return files;
 
@@ -84,7 +86,7 @@ export class RemoteUploadHandler extends UploadHandler<
       });
     }
 
-    function verifyFile(files: FileMeta[]) {
+    async function verifyFile(files: FileMeta[]) {
       if (files.length > this._option.count) {
         throw new VerifyFileException("count", files);
       }
@@ -92,6 +94,9 @@ export class RemoteUploadHandler extends UploadHandler<
         const file = files[i];
         if (!this._option.exts.includes(file.ext)) {
           throw new VerifyFileException("ext", file);
+        }
+        if (!(await this.option().verifyContentHandler(file))) {
+          throw new VerifyFileException("content", file);
         }
       }
     }

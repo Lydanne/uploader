@@ -88,3 +88,5 @@ export class VerifyFileException extends Error {
     this.file = file;
   }
 }
+
+export type VerifyContentHandler = (file: FileMeta) => Promise<boolean>;

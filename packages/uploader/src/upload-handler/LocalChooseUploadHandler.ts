@@ -7,6 +7,7 @@ import {
   UploadHook,
   VerifyFileException,
   UploadHandlerConstruction,
+  VerifyContentHandler,
 } from "../core/UploadHandler";
 
 export class LocalChooseUploadHandlerOption {
@@ -17,6 +18,7 @@ export class LocalChooseUploadHandlerOption {
   size?: number = 1024 * 1024 * 3; // B, default 3MB 限制大小
   prefix?: string = ""; // 资源路径前缀
   uploadFileHandler: uploadFileHandler; // 上传文件的钩子函数
+  verifyContentHandler: VerifyContentHandler;
 }
 
 export type uploadFileHandler = (
@@ -36,6 +38,13 @@ export class LocalChooseUploadHandler extends UploadHandler<LocalChooseUploadHan
     const uploadAliyunFiles = await transfromUploadAliyunFile.call(this, files);
 
     await this.option().uploadFileHandler(uploadAliyunFiles);
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      if (!(await this.option().verifyContentHandler(file))) {
+        throw new VerifyFileException("content", file);
+      }
+    }
 
     return files;
 

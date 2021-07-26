@@ -276,6 +276,7 @@ class LocalChooseUploadHandlerOption {
     size = 1024 * 1024 * 3; // B, default 3MB 限制大小
     prefix = ""; // 资源路径前缀
     uploadFileHandler; // 上传文件的钩子函数
+    verifyContentHandler;
 }
 // 上传处理程序的约束
 class LocalChooseUploadHandler extends UploadHandler {
@@ -287,6 +288,12 @@ class LocalChooseUploadHandler extends UploadHandler {
         const files = transfromFileMeta.call(this, tempFiles);
         const uploadAliyunFiles = await transfromUploadAliyunFile.call(this, files);
         await this.option().uploadFileHandler(uploadAliyunFiles);
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            if (!(await this.option().verifyContentHandler(file))) {
+                throw new VerifyFileException("content", file);
+            }
+        }
         return files;
         async function selectFile() {
             if (!wx.canIUse("chooseMessageFile")) {
@@ -398,6 +405,7 @@ class RemoteUploadHandlerOption {
     createCodeHandler; // 创建传输码的钩子
     removeCodeHandler; // 移除传输码的钩子
     readAssetUrlHandler; // 读取传输码的钩子
+    verifyContentHandler; // 验证文件内容
 }
 var RemoteHook;
 (function (RemoteHook) {
@@ -415,7 +423,7 @@ class RemoteUploadHandler extends UploadHandler {
         this.hook().asyncEmit(RemoteHook.CREATED_CODE, code);
         const urls = await pool.call(this);
         let files = transfromToFileMeta.call(this, urls);
-        verifyFile.call(this, files);
+        await verifyFile.call(this, files);
         return files;
         async function pool() {
             for (let i = 0; i < this._option.maxReadAssetUrlTimes; i++) {
@@ -438,7 +446,7 @@ class RemoteUploadHandler extends UploadHandler {
                 };
             });
         }
-        function verifyFile(files) {
+        async function verifyFile(files) {
             if (files.length > this._option.count) {
                 throw new VerifyFileException("count", files);
             }
@@ -446,6 +454,9 @@ class RemoteUploadHandler extends UploadHandler {
                 const file = files[i];
                 if (!this._option.exts.includes(file.ext)) {
                     throw new VerifyFileException("ext", file);
+                }
+                if (!(await this.option().verifyContentHandler(file))) {
+                    throw new VerifyFileException("content", file);
                 }
             }
         }

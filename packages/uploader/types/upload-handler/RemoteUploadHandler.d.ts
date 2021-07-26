@@ -1,4 +1,4 @@
-import { FileMeta, UploadHandler } from "../core/UploadHandler";
+import { FileMeta, UploadHandler, VerifyContentHandler } from "../core/UploadHandler";
 export declare type CreateCodeHandler = () => Promise<string>;
 export declare type RemoveCodeHandler = (code: any) => Promise<void> | void;
 export declare type ReadAssetUrlHandler = (string: any) => Promise<string[] | undefined | false>;
@@ -10,6 +10,7 @@ export declare class RemoteUploadHandlerOption {
     createCodeHandler: CreateCodeHandler;
     removeCodeHandler: RemoveCodeHandler;
     readAssetUrlHandler: ReadAssetUrlHandler;
+    verifyContentHandler: VerifyContentHandler;
 }
 export declare enum RemoteHook {
     CREATED_CODE = "createdCode"

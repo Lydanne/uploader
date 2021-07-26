@@ -1,5 +1,5 @@
 /// <reference types="wechat-miniprogram" />
-import { UploadHandler } from "../core/UploadHandler";
+import { UploadHandler, VerifyContentHandler } from "../core/UploadHandler";
 export declare class LocalChooseUploadHandlerOption {
     exts: string[];
     count: number;
@@ -8,6 +8,7 @@ export declare class LocalChooseUploadHandlerOption {
     size?: number;
     prefix?: string;
     uploadFileHandler: uploadFileHandler;
+    verifyContentHandler: VerifyContentHandler;
 }
 export declare type uploadFileHandler = (files: UploadAliyunFile[]) => Promise<string> | void;
 export declare class LocalChooseUploadHandler extends UploadHandler<LocalChooseUploadHandlerOption> {
