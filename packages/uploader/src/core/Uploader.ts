@@ -33,6 +33,7 @@ export class Uploader<O> {
     UploadHandler: UploadHandlerConstruction<O>,
     option?: O
   ): Uploader<O> {
+    if (this._uploadHandler) this._uploadHandler.about();
     this._option = optionHander(option, this._option);
     this._uploadHandler = new UploadHandler(this._option);
 
