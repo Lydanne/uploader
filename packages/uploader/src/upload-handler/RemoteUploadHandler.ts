@@ -46,6 +46,7 @@ export class RemoteUploadHandler extends UploadHandler<
   RemoteHook
 > {
   private _code: string;
+  private _aboutPool = false;
   constructor(option: RemoteUploadHandlerOption) {
     super(optionHander(option, new RemoteUploadHandlerOption()));
   }
@@ -70,6 +71,9 @@ export class RemoteUploadHandler extends UploadHandler<
         }
         if (urls) {
           return urls;
+        }
+        if (this._aboutPool) {
+          return [];
         }
 
         await sleep(this._option.sleepInterval);
@@ -103,6 +107,11 @@ export class RemoteUploadHandler extends UploadHandler<
   }
 
   destroy() {
+    this.about();
     this.option().removeCodeHandler(this._code);
+  }
+
+  about() {
+    this._aboutPool = true;
   }
 }

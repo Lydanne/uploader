@@ -124,6 +124,8 @@ export class LocalChooseUploadHandler extends UploadHandler<LocalChooseUploadHan
     }
   }
 
+  about() {}
+
   destroy() {}
 }
 

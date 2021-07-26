@@ -131,4 +131,10 @@ export class Uploader<O> {
       .forEach((_, k) => this._uploadHandler.hook().remove(k));
     this._uploadHandler = null;
   }
+
+  about(): Uploader<O> {
+    this._uploadHandler.about();
+    this._uploadHandler.hook().emit(UploadHook.ABOUT);
+    return this;
+  }
 }

@@ -4,7 +4,7 @@ export enum UploadHook {
   CREATED = "created", // 创建完成后
   // BEFORE_UPLOAD = 'beforeUpload',
   UPLOADED = "uploaded", //上传完成后
-  // ABOUT = "about",
+  ABOUT = "about",
   ERROR = "error", // 报错之后
   // PROCESS = "process",
   DESTROYED = "destroyed", // 销毁之后
@@ -74,6 +74,10 @@ export abstract class UploadHandler<T, CUH = any, H = CUH | UploadHook> {
    * @returns void
    */
   destroy() {
+    throw new Error("Method not implemented.");
+  }
+
+  about() {
     throw new Error("Method not implemented.");
   }
 }
