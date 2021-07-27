@@ -450,27 +450,31 @@ class RemoteUploadHandler extends UploadHandler {
     }
     async upload() {
         await this.option().removeCodeHandler(this._code);
-        const code = await this.option().createCodeHandler();
-        this._code = code;
-        this.hook().asyncEmit(exports.RemoteHook.CREATED_CODE, code);
         const urls = await pool.call(this);
         let files = transfromToFileMeta.call(this, urls);
         await verifyFile.call(this, files);
         return files;
         async function pool() {
-            for (let i = 0; i < this._option.maxReadAssetUrlTimes; i++) {
-                if (this._aboutPool) {
-                    this._aboutPool = false;
-                    throw new AboutException();
+            let isPool = true;
+            while (isPool) {
+                const code = await this.option().createCodeHandler();
+                this.hook().emit(exports.RemoteHook.CREATED_CODE, code);
+                this._code = code;
+                for (let i = 0; i < this._option.maxReadAssetUrlTimes; i++) {
+                    if (this._aboutPool) {
+                        this._aboutPool = false;
+                        isPool = false; // 这里其实没必要
+                        throw new AboutException();
+                    }
+                    const urls = await this._option.readAssetUrlHandler(code);
+                    if (urls === false) {
+                        return [];
+                    }
+                    if (urls) {
+                        return urls;
+                    }
+                    await sleep(this._option.sleepInterval);
                 }
-                const urls = await this._option.readAssetUrlHandler(code);
-                if (urls === false) {
-                    return [];
-                }
-                if (urls) {
-                    return urls;
-                }
-                await sleep(this._option.sleepInterval);
             }
             return [];
         }
