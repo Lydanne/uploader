@@ -1,3 +1,4 @@
+import { __DEV__ } from "./env";
 import { optionHander } from "../utils/Function";
 
 import {
@@ -18,9 +19,6 @@ export class Uploader<O> {
    */
   constructor(UploadHandler: UploadHandlerConstruction<O>, option?: O) {
     this.loadUploadHandler(UploadHandler, option);
-    this._uploadHandler
-      .hook()
-      .on(UploadHook.ERROR, console.error.bind(console));
   }
 
   /**
@@ -135,12 +133,18 @@ export class Uploader<O> {
       .hook()
       .events()
       .forEach((_, k) => this._uploadHandler.hook().remove(k));
-    this._uploadHandler = null;
   }
 
   about(): Uploader<O> {
     this._uploadHandler.about();
     this._uploadHandler.hook().emit(UploadHook.ABOUT);
     return this;
+  }
+
+  uploadHandler(handler: UploadHandlerConstruction<O>) {
+    if (handler) {
+      this.loadUploadHandler(handler);
+    }
+    return this._uploadHandler;
   }
 }

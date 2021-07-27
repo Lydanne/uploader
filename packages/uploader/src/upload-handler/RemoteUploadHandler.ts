@@ -30,7 +30,7 @@ export class RemoteUploadHandlerOption {
   // cate?: Cate;
   // size?: number = 1024 * 1024 * 3; // B, default 3MB
   // prefix?: string = "";
-  maxReadAssetUrlTimes?: number = 1000; // 限制轮询次数
+  maxReadAssetUrlTimes?: number = 3000; // 限制轮询次数
   sleepInterval?: number = 1000; // ms default 1s 轮询间隔
   createCodeHandler: CreateCodeHandler; // 创建传输码的钩子
   removeCodeHandler: RemoveCodeHandler; // 移除传输码的钩子
@@ -66,6 +66,10 @@ export class RemoteUploadHandler extends UploadHandler<
 
     async function pool() {
       for (let i = 0; i < this._option.maxReadAssetUrlTimes; i++) {
+        if (this._aboutPool) {
+          this._aboutPool = false;
+          throw new AboutException();
+        }
         const urls = await this._option.readAssetUrlHandler(code);
         if (urls === false) {
           return [];
@@ -73,11 +77,6 @@ export class RemoteUploadHandler extends UploadHandler<
         if (urls) {
           return urls;
         }
-        if (this._aboutPool) {
-          this._aboutPool = false;
-          throw new AboutException();
-        }
-
         await sleep(this._option.sleepInterval);
       }
       return [];

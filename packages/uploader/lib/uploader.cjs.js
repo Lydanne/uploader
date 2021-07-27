@@ -149,9 +149,6 @@ class Uploader {
      */
     constructor(UploadHandler, option) {
         this.loadUploadHandler(UploadHandler, option);
-        this._uploadHandler
-            .hook()
-            .on(exports.UploadHook.ERROR, console.error.bind(console));
     }
     /**
      * 同上
@@ -252,12 +249,17 @@ class Uploader {
             .hook()
             .events()
             .forEach((_, k) => this._uploadHandler.hook().remove(k));
-        this._uploadHandler = null;
     }
     about() {
         this._uploadHandler.about();
         this._uploadHandler.hook().emit(exports.UploadHook.ABOUT);
         return this;
+    }
+    uploadHandler(handler) {
+        if (handler) {
+            this.loadUploadHandler(handler);
+        }
+        return this._uploadHandler;
     }
 }
 
@@ -429,7 +431,7 @@ class RemoteUploadHandlerOption {
     // cate?: Cate;
     // size?: number = 1024 * 1024 * 3; // B, default 3MB
     // prefix?: string = "";
-    maxReadAssetUrlTimes = 1000; // 限制轮询次数
+    maxReadAssetUrlTimes = 3000; // 限制轮询次数
     sleepInterval = 1000; // ms default 1s 轮询间隔
     createCodeHandler; // 创建传输码的钩子
     removeCodeHandler; // 移除传输码的钩子
@@ -457,16 +459,16 @@ class RemoteUploadHandler extends UploadHandler {
         return files;
         async function pool() {
             for (let i = 0; i < this._option.maxReadAssetUrlTimes; i++) {
+                if (this._aboutPool) {
+                    this._aboutPool = false;
+                    throw new AboutException();
+                }
                 const urls = await this._option.readAssetUrlHandler(code);
                 if (urls === false) {
                     return [];
                 }
                 if (urls) {
                     return urls;
-                }
-                if (this._aboutPool) {
-                    this._aboutPool = false;
-                    throw new AboutException();
                 }
                 await sleep(this._option.sleepInterval);
             }

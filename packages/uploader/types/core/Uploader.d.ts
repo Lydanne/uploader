@@ -1,4 +1,4 @@
-import { UploadHook, HookCb, FileMeta, UploadHandlerConstruction } from "./UploadHandler";
+import { UploadHandler, UploadHook, HookCb, FileMeta, UploadHandlerConstruction } from "./UploadHandler";
 export declare class Uploader<O> {
     private _uploadHandler;
     private _option;
@@ -55,5 +55,6 @@ export declare class Uploader<O> {
      */
     destroy(): void;
     about(): Uploader<O>;
+    uploadHandler(handler: UploadHandlerConstruction<O>): UploadHandler<O, any, any>;
 }
 //# sourceMappingURL=Uploader.d.ts.map
