@@ -18,7 +18,7 @@ export class LocalChooseUploadHandlerOption {
   size?: number = 1024 * 1024 * 3; // B, default 3MB 限制大小
   prefix?: string = ""; // 资源路径前缀
   uploadFileHandler: uploadFileHandler; // 上传文件的钩子函数
-  verifyContentHandler: VerifyContentHandler = async () => true;
+  verifyContentHandler?: VerifyContentHandler = async () => true;
 }
 
 export type uploadFileHandler = (

@@ -8,7 +8,7 @@ export declare class LocalChooseUploadHandlerOption {
     size?: number;
     prefix?: string;
     uploadFileHandler: uploadFileHandler;
-    verifyContentHandler: VerifyContentHandler;
+    verifyContentHandler?: VerifyContentHandler;
 }
 export declare type uploadFileHandler = (files: UploadAliyunFile[]) => Promise<string> | void;
 export declare class LocalChooseUploadHandler extends UploadHandler<LocalChooseUploadHandlerOption> {
