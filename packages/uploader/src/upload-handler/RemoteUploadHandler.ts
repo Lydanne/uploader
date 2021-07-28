@@ -8,10 +8,16 @@ import {
   VerifyFileException,
 } from "../core/UploadHandler";
 
-export type CreateCodeHandler = () => Promise<string>;
-export type RemoveCodeHandler = (code) => Promise<void> | void;
+export type CreateCodeHandler = (
+  uploadHandler: RemoteUploadHandler
+) => Promise<string>;
+export type RemoveCodeHandler = (
+  code: string,
+  uploadHandler: RemoteUploadHandler
+) => Promise<void> | void;
 export type ReadAssetUrlHandler = (
-  string
+  code: string,
+  uploadHandler: RemoteUploadHandler
 ) => Promise<string[] | undefined | false>;
 
 type Cate =
@@ -26,12 +32,13 @@ type Cate =
 export class RemoteUploadHandlerOption {
   exts: string[] = []; // 限制文件后缀
   count: number = 1; // 限制文件数量
-  // type: "all" | "video" | "image" | "file" = "all";
-  // cate?: Cate;
-  // size?: number = 1024 * 1024 * 3; // B, default 3MB
-  // prefix?: string = "";
-  maxReadAssetUrlTimes?: number = 3000; // 限制轮询次数
-  sleepInterval?: number = 1000; // ms default 1s 轮询间隔
+  type: "all" | "video" | "image" | "file" = "all";
+  cate?: Cate;
+  size?: number = 1024 * 1024 * 3; // B, default 3MB
+  prefix?: string = "";
+  maxReadAssetUrlTimes?: number = 3000; // 限制轮询次数    - 弃用选项，请使用maxAge
+  sleepInterval?: number = 1000; // ms default 1s 轮询间隔 - 弃用选项，请使用maxAge
+  maxAge?: number = 5 * 60; // s default 5分钟 + Code过期时间
   createCodeHandler: CreateCodeHandler; // 创建传输码的钩子
   removeCodeHandler: RemoveCodeHandler; // 移除传输码的钩子
   readAssetUrlHandler: ReadAssetUrlHandler; // 读取传输码的钩子
@@ -47,13 +54,14 @@ export class RemoteUploadHandler extends UploadHandler<
   RemoteHook
 > {
   private _code: string;
+  private _codeExpriedAt: number; // 过期时间
   private _aboutPool = false;
   constructor(option: RemoteUploadHandlerOption) {
     super(optionHander(option, new RemoteUploadHandlerOption()));
   }
 
   async upload(): Promise<FileMeta[]> {
-    await this.option().removeCodeHandler(this._code);
+    await this.option().removeCodeHandler(this._code, this);
 
     const urls = await pool.call(this);
     let files: FileMeta[] = transfromToFileMeta.call(this, urls);
@@ -63,23 +71,24 @@ export class RemoteUploadHandler extends UploadHandler<
     async function pool() {
       let isPool = true;
       while (isPool) {
-        const code = await this.option().createCodeHandler();
+        const code = await this.option().createCodeHandler(this);
+        this._codeExpriedAt = Date.now() + this.option().maxAge * 1000;
         this.hook().emit(RemoteHook.CREATED_CODE, code);
         this._code = code;
-        for (let i = 0; i < this._option.maxReadAssetUrlTimes; i++) {
+        while (this._codeExpriedAt >= Date.now()) {
           if (this._aboutPool) {
             this._aboutPool = false;
             isPool = false; // 这里其实没必要
             throw new AboutException();
           }
-          const urls = await this._option.readAssetUrlHandler(code);
+          const urls = await this._option.readAssetUrlHandler(code, this);
           if (urls === false) {
             return [];
           }
           if (urls) {
             return urls;
           }
-          await sleep(this._option.sleepInterval);
+          await sleep(1000);
         }
       }
       return [];
@@ -112,7 +121,7 @@ export class RemoteUploadHandler extends UploadHandler<
 
   destroy() {
     this.about();
-    this.option().removeCodeHandler(this._code);
+    this.option().removeCodeHandler(this._code, this);
   }
 
   about() {
