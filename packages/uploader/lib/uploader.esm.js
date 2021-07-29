@@ -139,6 +139,7 @@ class AboutException extends Error {
 class Uploader {
     _uploadHandler;
     _option;
+    _isRun;
     /**
      * @param  {UploadHandlerConstruction<O>} UploadHandler // 传输器
      * @param  {O} option? 传给 UploadHandler 的选项
@@ -148,20 +149,24 @@ class Uploader {
     }
     /**
      * 同上
-     * @param  {UploadHandlerConstruction<O>} UploadHandler
+     * @param  {UploadHandlerConstruction<O>} LoadUploadHandler
      * @param  {O} option?
      * @returns Uploader
      */
-    loadUploadHandler(UploadHandler, option) {
+    loadUploadHandler(LoadUploadHandler, option) {
+        if (this._uploadHandler && this._uploadHandler instanceof LoadUploadHandler) {
+            return this;
+        }
+        this._isRun = false;
         let hook = null;
         if (this._uploadHandler) {
             this._uploadHandler.about();
             hook = this._uploadHandler.hook();
         }
         this._option = optionHander(option, this._option);
-        this._uploadHandler = new UploadHandler(this._option);
+        this._uploadHandler = new LoadUploadHandler(this._option);
         this._uploadHandler.hook(hook);
-        if (!(this._uploadHandler instanceof UploadHandler)) {
+        if (!(this._uploadHandler instanceof LoadUploadHandler)) {
             throw new Error("@sharedkit/Uploader: uploadHandler load error");
         }
         this._uploadHandler.hook().asyncEmit(UploadHook.CREATED, this);
@@ -172,13 +177,19 @@ class Uploader {
      * @returns Uploader
      */
     upload() {
+        if (this._isRun) {
+            return this;
+        }
+        this._isRun = true;
         this._uploadHandler
             .upload()
             .then((res) => {
+            this._isRun = false;
             this._uploadHandler.hook().emit(UploadHook.UPLOADED, res);
             this._uploadHandler.hook().emit(UploadHook.WAIT, null, res);
         })
             .catch((err) => {
+            this._isRun = false;
             this._uploadHandler.hook().emit(UploadHook.ERROR, err);
             this._uploadHandler.hook().emit(UploadHook.WAIT, err, null);
         });
@@ -247,8 +258,10 @@ class Uploader {
             .forEach((_, k) => this._uploadHandler.hook().remove(k));
     }
     about() {
-        this._uploadHandler.about();
-        this._uploadHandler.hook().emit(UploadHook.ABOUT);
+        if (this._isRun) {
+            this._uploadHandler.about();
+            this._uploadHandler.hook().emit(UploadHook.ABOUT);
+        }
         return this;
     }
     uploadHandler(handler) {
@@ -310,9 +323,10 @@ class LocalChooseUploadHandler extends UploadHandler {
         super(optionHander(option, new LocalChooseUploadHandlerOption()));
     }
     async upload() {
-        const tempFiles = await selectFile.call(this);
-        const files = transfromFileMeta.call(this, tempFiles);
-        const uploadAliyunFiles = await transfromUploadAliyunFile.call(this, files);
+        const self = this;
+        const tempFiles = await selectFile();
+        const files = transfromFileMeta(tempFiles);
+        const uploadAliyunFiles = await transfromUploadAliyunFile(files);
         await this.option().uploadFileHandler(uploadAliyunFiles);
         for (let i = 0; i < files.length; i++) {
             const file = files[i];
@@ -326,26 +340,26 @@ class LocalChooseUploadHandler extends UploadHandler {
                 throw new CantUseApiException("chooseMessageFile");
             }
             const { tempFiles } = await wx.chooseMessageFile({
-                count: this._option.count,
-                type: this._option.type,
-                extension: this._option.exts,
+                count: self.option().count,
+                type: self.option().type,
+                extension: self.option().exts,
             });
             return tempFiles;
         }
         function transfromFileMeta(tempFiles = []) {
-            if (tempFiles.length > this._option.count) {
+            if (tempFiles.length > self.option().count) {
                 throw new VerifyFileException("count", tempFiles);
             }
             return tempFiles.map((tempFile) => {
-                if (tempFile.size > this._option.size) {
+                if (tempFile.size > self.option().size) {
                     throw new VerifyFileException("size", tempFile);
                 }
-                if (tempFile.type !== this._option.type) {
+                if (tempFile.type !== self.option().type) {
                     throw new VerifyFileException("type", tempFile);
                 }
                 let ext = UrlParser.ext(tempFile.name);
-                if (this._option.exts?.length &&
-                    !this._option.exts.includes(ext.toLowerCase())) {
+                if (self.option().exts?.length &&
+                    !self.option().exts.includes(ext.toLowerCase())) {
                     throw new VerifyFileException("exts", tempFile);
                 }
                 return {
@@ -355,7 +369,7 @@ class LocalChooseUploadHandler extends UploadHandler {
                     type: tempFile.type,
                     path: tempFile.path,
                     time: tempFile.time,
-                    urlPath: `${this._option.prefix}/${uuid()}.${ext}`,
+                    urlPath: `${self.option().prefix}/${uuid()}.${ext}`,
                 };
             });
         }
@@ -376,7 +390,7 @@ class LocalChooseUploadHandler extends UploadHandler {
                 disk: "https://disk.welife001.com", //网盘文件
             };
             return files.map((file) => {
-                const cate = this._option.cate || typeToCate[file.type]; // 如果没有传入cate， 自动推算cate类型
+                const cate = self.option().cate || typeToCate[file.type]; // 如果没有传入cate， 自动推算cate类型
                 const url = ossBucketMap[cate] + file.urlPath;
                 file.url = url;
                 return {
@@ -423,12 +437,13 @@ class UploadFileException extends Error {
 class RemoteUploadHandlerOption {
     exts = []; // 限制文件后缀
     count = 1; // 限制文件数量
-    // type: "all" | "video" | "image" | "file" = "all";
-    // cate?: Cate;
-    // size?: number = 1024 * 1024 * 3; // B, default 3MB
-    // prefix?: string = "";
-    maxReadAssetUrlTimes = 3000; // 限制轮询次数
-    sleepInterval = 1000; // ms default 1s 轮询间隔
+    type = "all";
+    cate;
+    size = 1024 * 1024 * 3; // B, default 3MB
+    prefix = "";
+    maxReadAssetUrlTimes = 3000; // 限制轮询次数    - 弃用选项，请使用maxAge
+    sleepInterval = 1000; // ms default 1s 轮询间隔 - 弃用选项，请使用maxAge
+    maxAge = 5 * 60; // s default 5分钟 + Code过期时间
     createCodeHandler; // 创建传输码的钩子
     removeCodeHandler; // 移除传输码的钩子
     readAssetUrlHandler; // 读取传输码的钩子
@@ -440,36 +455,42 @@ var RemoteHook;
 })(RemoteHook || (RemoteHook = {}));
 class RemoteUploadHandler extends UploadHandler {
     _code;
+    _codeExpriedAt; // 过期时间
     _aboutPool = false;
     constructor(option) {
         super(optionHander(option, new RemoteUploadHandlerOption()));
     }
     async upload() {
-        await this.option().removeCodeHandler(this._code);
-        const urls = await pool.call(this);
-        let files = transfromToFileMeta.call(this, urls);
-        await verifyFile.call(this, files);
+        const self = this;
+        const urls = await pool();
+        let files = transfromToFileMeta(urls);
+        await verifyFile(files);
+        if (this._code)
+            await this.option().removeCodeHandler(this._code, this);
+        this._code = '';
         return files;
         async function pool() {
-            let isPool = true;
-            while (isPool) {
-                const code = await this.option().createCodeHandler();
-                this.hook().emit(RemoteHook.CREATED_CODE, code);
-                this._code = code;
-                for (let i = 0; i < this._option.maxReadAssetUrlTimes; i++) {
-                    if (this._aboutPool) {
-                        this._aboutPool = false;
-                        isPool = false; // 这里其实没必要
+            while (true) {
+                const code = await self.option().createCodeHandler(self);
+                self._codeExpriedAt = Date.now() + self.option().maxAge * 1000;
+                self.hook().emit(RemoteHook.CREATED_CODE, code);
+                self._code = code;
+                while (self._codeExpriedAt >= Date.now()) {
+                    if (self._aboutPool) {
+                        self._aboutPool = false;
+                        if (self._code)
+                            await self.option().removeCodeHandler(self._code, self);
+                        self._code = '';
                         throw new AboutException();
                     }
-                    const urls = await this._option.readAssetUrlHandler(code);
+                    const urls = await self.option().readAssetUrlHandler(code, self);
                     if (urls === false) {
                         return [];
                     }
                     if (urls) {
                         return urls;
                     }
-                    await sleep(this._option.sleepInterval);
+                    await sleep(1000);
                 }
             }
             return [];
@@ -483,15 +504,15 @@ class RemoteUploadHandler extends UploadHandler {
             });
         }
         async function verifyFile(files) {
-            if (files.length > this._option.count) {
+            if (files.length > self.option().count) {
                 throw new VerifyFileException("count", files);
             }
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
-                if (!this._option.exts.includes(file.ext)) {
+                if (!self.option().exts.includes(file.ext)) {
                     throw new VerifyFileException("ext", file);
                 }
-                if (!(await this.option().verifyContentHandler(file))) {
+                if (!(await self.option().verifyContentHandler(file))) {
                     throw new VerifyFileException("content", file);
                 }
             }
@@ -499,10 +520,12 @@ class RemoteUploadHandler extends UploadHandler {
     }
     destroy() {
         this.about();
-        this.option().removeCodeHandler(this._code);
     }
-    about() {
+    async about() {
         this._aboutPool = true;
+        if (this._code)
+            await this.option().removeCodeHandler(this._code, this);
+        this._code = '';
     }
 }
 

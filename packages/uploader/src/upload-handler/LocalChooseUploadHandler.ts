@@ -32,10 +32,11 @@ export class LocalChooseUploadHandler extends UploadHandler<LocalChooseUploadHan
   }
 
   async upload() {
-    const tempFiles = await selectFile.call(this);
-    const files = transfromFileMeta.call(this, tempFiles);
+    const self = this;
+    const tempFiles = await selectFile();
+    const files = transfromFileMeta(tempFiles);
 
-    const uploadAliyunFiles = await transfromUploadAliyunFile.call(this, files);
+    const uploadAliyunFiles = await transfromUploadAliyunFile(files);
 
     await this.option().uploadFileHandler(uploadAliyunFiles);
 
@@ -54,9 +55,9 @@ export class LocalChooseUploadHandler extends UploadHandler<LocalChooseUploadHan
       }
 
       const { tempFiles } = await wx.chooseMessageFile({
-        count: this._option.count,
-        type: this._option.type,
-        extension: this._option.exts,
+        count: self.option().count,
+        type: self.option().type,
+        extension: self.option().exts,
       });
 
       return tempFiles;
@@ -64,20 +65,20 @@ export class LocalChooseUploadHandler extends UploadHandler<LocalChooseUploadHan
     function transfromFileMeta(
       tempFiles: WechatMiniprogram.ChooseFile[] = []
     ): FileMeta[] {
-      if (tempFiles.length > this._option.count) {
+      if (tempFiles.length > self.option().count) {
         throw new VerifyFileException("count", tempFiles);
       }
       return tempFiles.map((tempFile) => {
-        if (tempFile.size > this._option.size) {
+        if (tempFile.size > self.option().size) {
           throw new VerifyFileException("size", tempFile);
         }
-        if (tempFile.type !== this._option.type) {
+        if (tempFile.type !== self.option().type) {
           throw new VerifyFileException("type", tempFile);
         }
         let ext = UrlParser.ext(tempFile.name);
         if (
-          this._option.exts?.length &&
-          !this._option.exts.includes(ext.toLowerCase())
+          self.option().exts?.length &&
+          !self.option().exts.includes(ext.toLowerCase())
         ) {
           throw new VerifyFileException("exts", tempFile);
         }
@@ -88,7 +89,7 @@ export class LocalChooseUploadHandler extends UploadHandler<LocalChooseUploadHan
           type: tempFile.type,
           path: tempFile.path,
           time: tempFile.time,
-          urlPath: `${this._option.prefix}/${uuid()}.${ext}`,
+          urlPath: `${self.option().prefix}/${uuid()}.${ext}`,
         };
       });
     }
@@ -110,7 +111,7 @@ export class LocalChooseUploadHandler extends UploadHandler<LocalChooseUploadHan
       };
 
       return files.map((file) => {
-        const cate = this._option.cate || typeToCate[file.type]; // 如果没有传入cate， 自动推算cate类型
+        const cate = self.option().cate || typeToCate[file.type]; // 如果没有传入cate， 自动推算cate类型
         const url = ossBucketMap[cate] + file.urlPath;
         file.url = url;
         return {

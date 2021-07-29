@@ -61,27 +61,30 @@ export class RemoteUploadHandler extends UploadHandler<
   }
 
   async upload(): Promise<FileMeta[]> {
-    await this.option().removeCodeHandler(this._code, this);
+    const self = this;
 
-    const urls = await pool.call(this);
-    let files: FileMeta[] = transfromToFileMeta.call(this, urls);
-    await verifyFile.call(this, files);
+    const urls = await pool();
+    let files: FileMeta[] = transfromToFileMeta(urls);
+    await verifyFile(files);
+
+    if(this._code) await this.option().removeCodeHandler(this._code, this)
+    this._code = ''
 
     return files;
     async function pool() {
-      let isPool = true;
-      while (isPool) {
-        const code = await this.option().createCodeHandler(this);
-        this._codeExpriedAt = Date.now() + this.option().maxAge * 1000;
-        this.hook().emit(RemoteHook.CREATED_CODE, code);
-        this._code = code;
-        while (this._codeExpriedAt >= Date.now()) {
-          if (this._aboutPool) {
-            this._aboutPool = false;
-            isPool = false; // 这里其实没必要
+      while (true) {
+        const code = await self.option().createCodeHandler(self);
+        self._codeExpriedAt = Date.now() + self.option().maxAge * 1000;
+        self.hook().emit(RemoteHook.CREATED_CODE, code);
+        self._code = code;
+        while (self._codeExpriedAt >= Date.now()) {
+          if (self._aboutPool) {
+            self._aboutPool = false;
+            if(self._code) await self.option().removeCodeHandler(self._code, self)
+            self._code = ''        
             throw new AboutException();
           }
-          const urls = await this._option.readAssetUrlHandler(code, this);
+          const urls = await self.option().readAssetUrlHandler(code, self);
           if (urls === false) {
             return [];
           }
@@ -104,15 +107,15 @@ export class RemoteUploadHandler extends UploadHandler<
     }
 
     async function verifyFile(files: FileMeta[]) {
-      if (files.length > this._option.count) {
+      if (files.length > self.option().count) {
         throw new VerifyFileException("count", files);
       }
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
-        if (!this._option.exts.includes(file.ext)) {
+        if (!self.option().exts.includes(file.ext)) {
           throw new VerifyFileException("ext", file);
         }
-        if (!(await this.option().verifyContentHandler(file))) {
+        if (!(await self.option().verifyContentHandler(file))) {
           throw new VerifyFileException("content", file);
         }
       }
@@ -121,10 +124,11 @@ export class RemoteUploadHandler extends UploadHandler<
 
   destroy() {
     this.about();
-    this.option().removeCodeHandler(this._code, this);
   }
 
-  about() {
+  async about() {
     this._aboutPool = true;
+    if(this._code) await this.option().removeCodeHandler(this._code, this);
+    this._code = ''
   }
 }

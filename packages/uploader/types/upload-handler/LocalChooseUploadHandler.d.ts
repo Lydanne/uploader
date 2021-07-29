@@ -1,5 +1,5 @@
 /// <reference types="wechat-miniprogram" />
-import { UploadHandler, VerifyContentHandler } from "../core/UploadHandler";
+import { UploadHandler, FileMeta, VerifyContentHandler } from "../core/UploadHandler";
 export declare class LocalChooseUploadHandlerOption {
     exts: string[];
     count: number;
@@ -13,7 +13,7 @@ export declare class LocalChooseUploadHandlerOption {
 export declare type uploadFileHandler = (files: UploadAliyunFile[]) => Promise<string> | void;
 export declare class LocalChooseUploadHandler extends UploadHandler<LocalChooseUploadHandlerOption> {
     constructor(option: LocalChooseUploadHandlerOption);
-    upload(): Promise<any>;
+    upload(): Promise<FileMeta[]>;
     about(): void;
     destroy(): void;
 }

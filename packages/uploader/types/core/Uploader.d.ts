@@ -2,6 +2,7 @@ import { UploadHandler, UploadHook, HookCb, FileMeta, UploadHandlerConstruction 
 export declare class Uploader<O> {
     private _uploadHandler;
     private _option;
+    private _isRun;
     /**
      * @param  {UploadHandlerConstruction<O>} UploadHandler // 传输器
      * @param  {O} option? 传给 UploadHandler 的选项
@@ -9,11 +10,11 @@ export declare class Uploader<O> {
     constructor(UploadHandler: UploadHandlerConstruction<O>, option?: O);
     /**
      * 同上
-     * @param  {UploadHandlerConstruction<O>} UploadHandler
+     * @param  {UploadHandlerConstruction<O>} LoadUploadHandler
      * @param  {O} option?
      * @returns Uploader
      */
-    loadUploadHandler(UploadHandler: UploadHandlerConstruction<O>, option?: O): Uploader<O>;
+    loadUploadHandler(LoadUploadHandler: UploadHandlerConstruction<O>, option?: O): Uploader<O>;
     /**
      * 开始上传
      * @returns Uploader

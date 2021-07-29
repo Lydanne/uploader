@@ -12,6 +12,7 @@ import {
 export class Uploader<O> {
   private _uploadHandler: UploadHandler<O>;
   private _option: O;
+  private _isRun: boolean;
 
   /**
    * @param  {UploadHandlerConstruction<O>} UploadHandler // 传输器
@@ -23,24 +24,28 @@ export class Uploader<O> {
 
   /**
    * 同上
-   * @param  {UploadHandlerConstruction<O>} UploadHandler
+   * @param  {UploadHandlerConstruction<O>} LoadUploadHandler
    * @param  {O} option?
    * @returns Uploader
    */
   loadUploadHandler(
-    UploadHandler: UploadHandlerConstruction<O>,
+    LoadUploadHandler: UploadHandlerConstruction<O>,
     option?: O
   ): Uploader<O> {
+    if(this._uploadHandler && this._uploadHandler instanceof LoadUploadHandler){
+      return this;
+    }
+    this._isRun = false
     let hook = null;
     if (this._uploadHandler) {
       this._uploadHandler.about();
       hook = this._uploadHandler.hook();
     }
     this._option = optionHander(option, this._option);
-    this._uploadHandler = new UploadHandler(this._option);
+    this._uploadHandler = new LoadUploadHandler(this._option);
     this._uploadHandler.hook(hook);
 
-    if (!(this._uploadHandler instanceof UploadHandler)) {
+    if (!(this._uploadHandler instanceof LoadUploadHandler)) {
       throw new Error("@sharedkit/Uploader: uploadHandler load error");
     }
 
@@ -54,13 +59,19 @@ export class Uploader<O> {
    * @returns Uploader
    */
   upload(): Uploader<O> {
+    if(this._isRun){
+      return this
+    }
+    this._isRun = true
     this._uploadHandler
       .upload()
       .then((res) => {
+        this._isRun = false
         this._uploadHandler.hook().emit(UploadHook.UPLOADED, res);
         this._uploadHandler.hook().emit(UploadHook.WAIT, null, res);
       })
       .catch((err) => {
+        this._isRun = false
         this._uploadHandler.hook().emit(UploadHook.ERROR, err);
         this._uploadHandler.hook().emit(UploadHook.WAIT, err, null);
       });
@@ -136,8 +147,10 @@ export class Uploader<O> {
   }
 
   about(): Uploader<O> {
-    this._uploadHandler.about();
-    this._uploadHandler.hook().emit(UploadHook.ABOUT);
+    if(this._isRun){
+      this._uploadHandler.about();
+      this._uploadHandler.hook().emit(UploadHook.ABOUT);
+    }
     return this;
   }
 
