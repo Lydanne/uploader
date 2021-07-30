@@ -1,7 +1,7 @@
 {
   "name": "@sharedkit/uploader-remote",
   "version": "0.0.1",
-  "description": "uploader remote upload component.",
+  "description": "uploader remote upload site.",
   "author": "WumaCoder <1829913225@qq.com>",
   "homepage": "https://github.com/WumaCoder/uploader#readme",
   "license": "MIT",

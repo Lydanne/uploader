@@ -1,11 +1,11 @@
-# `uploader-remote-service`
+# `uploader-remote`
 
 > TODO: description
 
 ## Usage
 
 ```
-const uploaderRemoteService = require('uploader-remote-service');
+const uploaderRemote = require('uploader-remote');
 
 // TODO: DEMONSTRATE API
 ```

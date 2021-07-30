@@ -6,12 +6,12 @@ export default defineConfig({
   input: "./src/index.ts",
   output: [
     {
-      file: "./lib/uploader-remote.cjs.js",
+      file: "./lib/uploader-remote-service.cjs.js",
       format: "cjs",
       sourcemap: true,
     },
     {
-      file: "./lib/uploader-remote.esm.js",
+      file: "./lib/uploader-remote-service.esm.js",
       format: "esm",
       sourcemap: true,
     },
