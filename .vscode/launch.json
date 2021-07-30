@@ -5,6 +5,13 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Launch Edge",
+      "request": "launch",
+      "type": "pwa-msedge",
+      "url": "http://localhost:8081",
+      "webRoot": "${workspaceFolder}/packages/uploader-remote"
+    },
+    {
       "type": "node",
       "request": "launch",
       "name": "Launch via NPM",
@@ -36,6 +43,12 @@
       "windows": {
         "program": "${workspaceFolder}/node_modules/jest/bin/jest"
       }
+    },
+    {
+      "name": "Launch Microsoft Edge and open the Edge DevTools",
+      "request": "launch",
+      "type": "vscode-edge-devtools.debug",
+      "url": "" // Provide your project's url to finish configuring
     }
   ]
 }
