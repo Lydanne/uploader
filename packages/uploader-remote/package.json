@@ -1,38 +1,38 @@
 {
+  "private": true,
   "name": "@sharedkit/uploader-remote",
   "version": "0.0.1",
   "description": "uploader remote upload site.",
   "author": "WumaCoder <1829913225@qq.com>",
   "homepage": "https://github.com/WumaCoder/uploader#readme",
   "license": "MIT",
-  "main": "index.js",
-  "module": "lib/uploader-remote.esm.js",
-  "typings": "./types/index.d.ts",
   "directories": {
     "lib": "lib",
     "test": "tests"
-  },
-  "files": [
-    "lib",
-    "types",
-    "src"
-  ],
-  "publishConfig": {
-    "access": "public"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/WumaCoder/uploader.git"
   },
   "scripts": {
-    "build": "rollup -c",
-    "dev": "rollup -c -w",
-    "test": "jest"
+    "dev": "vite",
+    "build": "vite build",
+    "test": "echo hello"
   },
   "bugs": {
     "url": "https://github.com/WumaCoder/uploader/issues"
   },
   "devDependencies": {
-    "jest-mock-random": "^1.1.1"
+    "jest-mock-random": "^1.1.1",
+    "typescript": "^4.3.5",
+    "vite": "^2.4.4",
+    "vite-plugin-vue2": "^1.7.3",
+    "vue-template-compiler": "^2.6.14"
+  },
+  "dependencies": {
+    "@vue/composition-api": "^1.0.4",
+    "@vueuse/core": "^5.2.0",
+    "vue": "^2.6.14",
+    "vue-demi": "^0.11.2"
   }
 }
