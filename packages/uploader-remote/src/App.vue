@@ -21,20 +21,32 @@
 </template>
 
 <script lang="ts">
-import { View, viewterKey } from "@/context/viewter";
+import { View, Viewter, viewterKey } from "@/context/viewter";
 import { defineComponent, provide, ref } from "vue-demi";
 import Home from "./views/Home.vue";
 
+type ToParams = { code: string };
+
 export default defineComponent({
-  components: { Home, Upload: () => import("./views/Upload.vue") },
+  components: {
+    Home,
+    Uploadv1: () => import("./views/Uploadv1.vue"),
+    Uploadv2: () => import("./views/Uploadv2.vue"),
+  },
   setup() {
     const view = ref<View>("home");
+    const viewStore: Viewter<ToParams> = {
+      view,
+      params: { code: "" },
+      to,
+    };
 
-    function to(page: View) {
-      view.value = page;
+    function to(_view: View, _params: ToParams) {
+      view.value = _view;
+      viewStore.params = _params;
     }
 
-    provide(viewterKey, { view, to });
+    provide(viewterKey, viewStore);
 
     return {
       view,

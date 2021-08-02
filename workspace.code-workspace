@@ -1,0 +1,12 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"name": "📦 @sharedkit/uploader-remote",
+			"path": "packages/uploader-remote"
+		}
+	],
+	"settings": {}
+}

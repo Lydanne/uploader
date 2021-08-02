@@ -17,6 +17,13 @@ const config = defineConfig({
 
   server: {
     port: 8081,
+    proxy:{
+        '/proxy': {
+          target: 'http://localhost:8088',
+          changeOrigin: true,
+          rewrite: path => path.replace(/^\/proxy/, '')
+        }
+    }
   },
 
   plugins: [

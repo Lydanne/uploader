@@ -13,6 +13,7 @@
           placeholder="请输入传输码"
           size="normal"
           clearable
+          focus
         ></el-input>
         <el-button class="submit" type="primary" @click="onSubmit"
           >上传导入</el-button
@@ -23,16 +24,29 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, inject, ref } from "vue-demi";
+import { computed, defineComponent, inject, ref } from "vue-demi";
 import { viewterKey } from "@/context/viewter";
+import { open } from '@/api/uploader-pipe'
+import { wrap } from '@/utils/wrap'
+import { getQ } from '@/utils/getQ'
+import { Message } from 'element-ui';
+
 
 export default defineComponent({
   setup() {
     const viewter = inject(viewterKey);
-    const code = ref("");
+    const code = ref(getQ());
 
-    function onSubmit() {
-      viewter?.to("upload");
+    async function onSubmit() {
+      const [err, res] = await wrap(open(code.value))
+
+      if(err){
+        return Message.error('传输码错误，请输入正确的传输码')
+      }
+
+      console.log(res)
+      
+      viewter?.to("uploadv2", res.data);
     }
     return {
       code,
@@ -40,6 +54,10 @@ export default defineComponent({
       onSubmit,
     };
   },
+  created(){
+    console.log();
+
+  }
 });
 </script>
 

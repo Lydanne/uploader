@@ -1,0 +1,1 @@
+export const getQ = () => new URLSearchParams(window.location.search).get('q') || ''

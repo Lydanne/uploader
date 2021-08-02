@@ -1,10 +1,11 @@
 import { InjectionKey, Ref } from "vue-demi";
 
-export type View = "home" | "upload";
+export type View = "home" | "uploadv1" | "uploadv2";
 
-export interface Viewter {
+export interface Viewter<T> {
   view: Ref<View>;
-  to(view: View): void;
+  params: T;
+  to(view: View, params?: T): void;
 }
 
-export const viewterKey: InjectionKey<Viewter> = Symbol();
+export const viewterKey: InjectionKey<Viewter<any>> = Symbol();
