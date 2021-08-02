@@ -44,6 +44,8 @@ export default defineComponent({
     function to(_view: View, _params: ToParams) {
       view.value = _view;
       viewStore.params = _params;
+      if(_params)
+      localStorage.setItem('viewParams', JSON.stringify(_params))
     }
 
     provide(viewterKey, viewStore);

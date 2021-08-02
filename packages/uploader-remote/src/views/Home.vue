@@ -30,6 +30,7 @@ import { open } from '@/api/uploader-pipe'
 import { wrap } from '@/utils/wrap'
 import { getQ } from '@/utils/getQ'
 import { Message } from 'element-ui';
+import { axios } from "@/utils/axios";
 
 
 export default defineComponent({
@@ -41,12 +42,30 @@ export default defineComponent({
       const [err, res] = await wrap(open(code.value))
 
       if(err){
-        return Message.error('传输码错误，请输入正确的传输码')
+        const [err]  = await wrap(oldUploadv1())
+        console.log(err);
+        
+        if(err){
+          return Message.error('传输码错误，请输入正确的传输码')
+        }
+        viewter?.to("uploadv1", { code: code.value });
+        return;
       }
 
-      console.log(res)
-      
       viewter?.to("uploadv2", res.data);
+
+      async function oldUploadv1() {
+        let result = await axios.post("/getTransCodeContent", {
+          trans_code: code.value,
+        });
+        //console.log(result)
+
+        if (result.data && result.data == "1") {
+          return true
+        } else {
+          throw new Error('uploadV1传输码错误')
+        }
+      }
     }
     return {
       code,
