@@ -6,7 +6,7 @@
           <el-button class="back" size="mini" @click="viewter.to('home')"
             >返回</el-button
           >
-          <span class="title">上传{{ limit.scene }}</span>
+          <span class="title">上传{{ limit.scene }}导入</span>
           <a :href="limit.helpUrl" class="help">?</a>
         </div>
       </template>
