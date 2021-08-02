@@ -311,7 +311,7 @@ class LocalChooseUploadHandlerOption {
     exts = []; // 限制文件后缀，最后会传给微信API
     count = 1; // 限制文件数量，最后会传给微信API
     type = "all"; // 类型，给微信API的
-    cate; // 会传给 aliyunOss 这个方法
+    cate; // 会传给 aliyunOss 这个方法, 如果不传会通过type推算
     size = 1024 * 1024 * 3; // B, default 3MB 限制大小
     prefix = ""; // 资源路径前缀
     uploadFileHandler; // 上传文件的钩子函数
@@ -462,8 +462,7 @@ class RemoteUploadHandler extends UploadHandler {
     }
     async upload() {
         const self = this;
-        const urls = await pool();
-        let files = transfromToFileMeta(urls);
+        const files = await pool();
         await verifyFile(files);
         if (this._code)
             await this.option().removeCodeHandler(this._code, this);
@@ -494,14 +493,6 @@ class RemoteUploadHandler extends UploadHandler {
                 }
             }
             return [];
-        }
-        function transfromToFileMeta(urls) {
-            return urls.map((url) => {
-                return {
-                    url,
-                    ext: UrlParser.ext(url),
-                };
-            });
         }
         async function verifyFile(files) {
             if (files.length > self.option().count) {

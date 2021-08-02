@@ -1,7 +1,7 @@
 import { FileMeta, UploadHandler, VerifyContentHandler } from "../core/UploadHandler";
 export declare type CreateCodeHandler = (uploadHandler: RemoteUploadHandler) => Promise<string>;
 export declare type RemoveCodeHandler = (code: string, uploadHandler: RemoteUploadHandler) => Promise<void> | void;
-export declare type ReadAssetUrlHandler = (code: string, uploadHandler: RemoteUploadHandler) => Promise<string[] | undefined | false>;
+export declare type ReadAssetUrlHandler = (code: string, uploadHandler: RemoteUploadHandler) => Promise<FileMeta[] | undefined | false>;
 declare type Cate = "record" | "video" | "img" | "answer_img" | "file" | "album" | "disk";
 export declare class RemoteUploadHandlerOption {
     exts: string[];

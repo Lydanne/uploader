@@ -18,7 +18,7 @@ export type RemoveCodeHandler = (
 export type ReadAssetUrlHandler = (
   code: string,
   uploadHandler: RemoteUploadHandler
-) => Promise<string[] | undefined | false>;
+) => Promise<FileMeta[] | undefined | false>;
 
 type Cate =
   | "record"
@@ -63,8 +63,7 @@ export class RemoteUploadHandler extends UploadHandler<
   async upload(): Promise<FileMeta[]> {
     const self = this;
 
-    const urls = await pool();
-    let files: FileMeta[] = transfromToFileMeta(urls);
+    const files = await pool();
     await verifyFile(files);
 
     if(this._code) await this.option().removeCodeHandler(this._code, this)
@@ -95,15 +94,6 @@ export class RemoteUploadHandler extends UploadHandler<
         }
       }
       return [];
-    }
-
-    function transfromToFileMeta(urls) {
-      return urls.map((url) => {
-        return {
-          url,
-          ext: UrlParser.ext(url),
-        };
-      });
     }
 
     async function verifyFile(files: FileMeta[]) {

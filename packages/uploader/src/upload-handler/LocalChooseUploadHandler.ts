@@ -14,7 +14,7 @@ export class LocalChooseUploadHandlerOption {
   exts: string[] = []; // 限制文件后缀，最后会传给微信API
   count: number = 1; // 限制文件数量，最后会传给微信API
   type: "all" | "video" | "image" | "file" = "all"; // 类型，给微信API的
-  cate?: Cate; // 会传给 aliyunOss 这个方法
+  cate?: Cate; // 会传给 aliyunOss 这个方法, 如果不传会通过type推算
   size?: number = 1024 * 1024 * 3; // B, default 3MB 限制大小
   prefix?: string = ""; // 资源路径前缀
   uploadFileHandler: uploadFileHandler; // 上传文件的钩子函数
