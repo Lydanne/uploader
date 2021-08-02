@@ -3,7 +3,7 @@
     <el-card>
       <template #header>
         <div class="head">
-          <el-button class="back" size="mini" @click="viewter.to('home')"
+          <el-button class="back" size="mini" @click="onBack"
             >返回</el-button
           >
           <span class="title">上传{{ limit.scene }}导入</span>
@@ -143,12 +143,18 @@ export default defineComponent({
       Message.warning("上传失败");
     }
 
+    async function onBack() {
+      viewter?.to('home')
+      await close(limit.code)
+    }
+
     return {
       viewter,
       limit,
       limitExts,
       limitSize,
       upload,
+      onBack,
       uploadFile,
       beforeUpload,
       onOverCount,
