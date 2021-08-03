@@ -23,7 +23,7 @@ const config = defineConfig({
     port: 8081,
     proxy:{
         '/proxy': {
-          target: 'http://localhost:8088',
+          target: 'https://ab.welife001.com',
           changeOrigin: true,
           rewrite: path => path.replace(/^\/proxy/, '')
         }

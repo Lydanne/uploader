@@ -53,10 +53,7 @@ export default defineComponent({
         return router?.push({ name: "uploadv1", params: { code: code.value } });
       }
 
-      if(v2Err && v2Err.msg){
-        return Message.error(v2Err.msg);
-      }
-      return Message.error("传输码错误，请输入正确的传输码");
+      return Message.error(v2Err.message);
 
       async function uploadv1() {
         let result = await axios.post("/getTransCodeContent", {
@@ -66,7 +63,7 @@ export default defineComponent({
         if (result.data && result.data == "1") {
           return true;
         } else {
-          throw new Error("uploadV1传输码错误");
+          throw new Error("传输码错误，请输入正确的传输码");
         }
       }
     }

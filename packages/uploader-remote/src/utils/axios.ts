@@ -23,6 +23,10 @@ axios.interceptors.response.use(function (response) {
   switch (response.data.code) {
     case 404:
       throw new ResponseExpection('NotFind',response.data.msg);
+    case 403:
+      throw new ResponseExpection('NoAccess',response.data.msg);
+    case 500:
+      throw new ResponseExpection('ServerError',response.data.msg);
   }
 
   return response.data;
