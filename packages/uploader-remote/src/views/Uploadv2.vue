@@ -4,12 +4,12 @@
       <template #header>
         <div class="head">
           <el-button class="back" size="mini" @click="onBack">返回</el-button>
-          <span class="title">上传{{ limit.scene }}导入</span>
-          <a :href="limit.helpUrl" class="help">?</a>
+          <span class="title">上传{{ limit.scene || '导入' }}</span>
+          <a target="_blank" :href="limit.helpUrl" class="help">?</a>
         </div>
       </template>
       <div class="body">
-        <p class="title">上传文件，将智能识别文件内容</p>
+        <p class="title">上传{{ limit.scene }}文件，将智能识别文件内容</p>
         <div class="core">
           <el-upload
             class="upload-demo"
@@ -27,7 +27,7 @@
           >
             <i class="el-icon-upload"></i>
             <div class="el-upload__text">
-              将文件拖到此处，或 <em>点击上传</em>
+              将{{ limit.scene }}文件拖到此处，或 <em>点击上传</em>
             </div>
             <div class="el-upload__tip text-center" slot="tip">
               请在{{ limit.maxAge / 60 }}分钟内上传{{
@@ -37,7 +37,7 @@
           </el-upload>
         </div>
         <p class="tip">
-          温馨提示：<a :href="limit.helpUrl">点击查看帮助文档</a>
+          温馨提示：<a target="_blank" :href="limit.helpUrl">点击查看帮助文档</a>
         </p>
       </div>
     </el-card>
@@ -182,6 +182,8 @@ function useUploader(limit: LimitOption) {
     const [cancel] = await wrap(
       MessageBox.confirm("上传成功，是否同步到手机端", {
         type: "success",
+        cancelButtonText:'重新上传',
+        confirmButtonText: '同步到小程序'
       })
     );
     if (cancel) {

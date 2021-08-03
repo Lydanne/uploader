@@ -1,12 +1,12 @@
 <template>
   <div>
     <div class="header">
-      <span class="logo">
+      <span class="logo" @click="$router.replace('/')">
         <img style="width:100%;height100%" src="/favicon.ico" alt="LOGO" />
       </span>
-      <span class="title">班级小管家</span>
+      <span class="title" @click="$router.replace('/')">班级小管家</span>
       <span class="line"></span>
-      <span class="sub">文件传输助手</span>
+      <span class="sub" @click="$router.replace('/')">文件传输助手</span>
     </div>
     <div class="main">
       <router-view></router-view>
@@ -40,11 +40,13 @@ body {
   .logo {
     width: 28px;
     height: 28px;
+    cursor: pointer;
   }
   .title {
     font-size: 22px;
     margin-left: 5px;
     color: #656565;
+    cursor: pointer;
   }
   .line {
     width: 1px;
@@ -54,6 +56,7 @@ body {
   }
   .sub {
     color: #666;
+    cursor: pointer;
   }
 }
 
