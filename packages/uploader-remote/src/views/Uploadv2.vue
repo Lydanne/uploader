@@ -120,7 +120,7 @@ export default defineComponent({
     }
 
     function onOverCount() {
-      Message.warning("文件数量超出限制");
+      Message.warning(`文件数量超出限制，最多上传${limit.count}个文件`);
     }
 
     const upload = ref()
