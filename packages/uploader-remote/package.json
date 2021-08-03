@@ -17,13 +17,16 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "test": "echo hello"
+    "test": "echo hello",
+    "preview": "vite preview"
   },
   "bugs": {
     "url": "https://github.com/WumaCoder/uploader/issues"
   },
   "devDependencies": {
     "@types/uuid": "^8.3.1",
+    "@vitejs/plugin-legacy": "^1.5.0",
+    "clean-css": "^5.1.4",
     "jest-mock-random": "^1.1.1",
     "sass": "^1.36.0",
     "typescript": "^4.3.5",

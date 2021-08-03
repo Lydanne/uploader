@@ -1,9 +1,10 @@
 import path from "path";
 import { defineConfig } from "vite";
 import { createVuePlugin } from "vite-plugin-vue2";
-
+import legacy from '@vitejs/plugin-legacy'
 
 const config = defineConfig({
+  base:'./',
   resolve: {
     alias: {
       "@": `${path.resolve(__dirname, "src")}`,
@@ -13,6 +14,9 @@ const config = defineConfig({
 
   build: {
     minify: true,
+    cleanCssOptions:{
+      level: 1
+    }
   },
 
   server: {
@@ -27,7 +31,8 @@ const config = defineConfig({
   },
 
   plugins: [
-    createVuePlugin()
+    createVuePlugin(),
+    legacy()
   ],
 });
 
