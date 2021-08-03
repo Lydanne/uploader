@@ -194,10 +194,11 @@ function useUploader(limit: LimitOption) {
         await wrap(MessageBox.alert("传输码失效，请重新上传"));
       }
       addEvent({
-        cate: "上传完成",
+        cate: "电脑端上传",
         p1: "v2",
         id: "上传文件",
         platform: "web",
+        messaage: '上传完成',
         status: "ok",
       });
       await wrap(
