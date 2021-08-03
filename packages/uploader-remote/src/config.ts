@@ -1,7 +1,7 @@
 export const __DEV__ = import.meta.env.DEV ? true : false
 
 const defaultConfig = {
-  baseURL: "",
+  baseURL: "/",
   ossBucketMap: {
     record: "https://campusrecord.welife001.com",
     video: "https://campusvideo.welife001.com",
