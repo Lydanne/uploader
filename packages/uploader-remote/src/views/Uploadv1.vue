@@ -403,13 +403,7 @@ export default {
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style>
-body {
-  background: #e9eaeb;
-  display: flex;
-  /* align-items: center; */
-  justify-content: center;
-}
+<style scoped>
 
 [v-cloak] {
   display: none;
@@ -423,7 +417,10 @@ body {
   justify-content: center;
   margin-top: 80px;
   flex-direction: column;
-  position: relative;
+  position: absolute;
+  top: 48%;
+  left: 50%;
+  transform:translate(-50%, -50%);
 }
 .upload-demo {
   width: 600px;

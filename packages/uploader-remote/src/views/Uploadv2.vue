@@ -180,7 +180,9 @@ function useUploader(limit: LimitOption) {
   const upload = ref();
   async function onSuccess() {
     const [cancel] = await wrap(
-      MessageBox.confirm("上传成功，是否同步到手机端")
+      MessageBox.confirm("上传成功，是否同步到手机端", {
+        type: "success",
+      })
     );
     if (cancel) {
       upload.value.clearFiles();
@@ -196,7 +198,13 @@ function useUploader(limit: LimitOption) {
         platform: "web",
         status: "ok",
       });
-      await wrap(MessageBox.alert("同步成功，请查看手机端"));
+      await wrap(
+        MessageBox.alert("同步成功，请查看手机端", {
+          confirmButtonText: "确定",
+          showCancelButton: false,
+          type: "success",
+        })
+      );
       await close(limit.code);
       router?.back();
     }
