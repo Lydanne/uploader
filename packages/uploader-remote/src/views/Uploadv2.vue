@@ -208,7 +208,7 @@ function useUploader(limit: LimitOption) {
           type: "success",
         })
       );
-      await close(limit.code);
+      await wrap(close(limit.code));
       router?.back();
     }
   }
