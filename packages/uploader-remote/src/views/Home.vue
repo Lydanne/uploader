@@ -13,7 +13,8 @@
           placeholder="请输入传输码"
           size="normal"
           clearable
-          focus
+          autofocus
+          @keypress.enter.native="onSubmit"
         ></el-input>
         <el-button class="submit" type="primary" @click="onSubmit"
           >上传导入</el-button
@@ -24,58 +25,52 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, inject, ref } from "vue-demi";
-import { viewterKey } from "@/context/viewter";
-import { open } from '@/api/uploader-pipe'
-import { wrap } from '@/utils/wrap'
-import { getQ } from '@/utils/getQ'
-import { Message } from 'element-ui';
+import { defineComponent, inject, ref } from "vue-demi";
+import { open } from "@/api/uploader-pipe";
+import { wrap } from "@/utils/wrap";
+import { getQ } from "@/utils/getQ";
+import { Message } from "element-ui";
 import { axios } from "@/utils/axios";
-
+import { useRouter } from "@/hooks/useRouter";
 
 export default defineComponent({
   setup() {
-    const viewter = inject(viewterKey);
     const code = ref(getQ());
+    const router = useRouter();
 
     async function onSubmit() {
-      const [err, res] = await wrap(open(code.value))
+      const [v2Err, v2Res] = await wrap(open(code.value));
 
-      if(err){
-        const [err]  = await wrap(oldUploadv1())
-        console.log(err);
-        
-        if(err){
-          return Message.error('传输码错误，请输入正确的传输码')
-        }
-        viewter?.to("uploadv1", { code: code.value });
-        return;
+      if (!v2Err) {
+        Message.success("传输码正确");
+        return router?.push({ name: "uploadv2", params: v2Res.data });
       }
 
-      viewter?.to("uploadv2", res.data);
+      const [v1Err] = await wrap(uploadv1());
 
-      async function oldUploadv1() {
+      if (!v1Err) {
+        Message.success("传输码正确");
+        return router?.push({ name: "uploadv1", params: { code: code.value } });
+      }
+
+      return Message.error("传输码错误，请输入正确的传输码");
+
+      async function uploadv1() {
         let result = await axios.post("/getTransCodeContent", {
           trans_code: code.value,
         });
-        //console.log(result)
 
         if (result.data && result.data == "1") {
-          return true
+          return true;
         } else {
-          throw new Error('uploadV1传输码错误')
+          throw new Error("uploadV1传输码错误");
         }
       }
     }
     return {
       code,
-
       onSubmit,
     };
-  },
-  created(){
-    console.log();
-
   }
 });
 </script>

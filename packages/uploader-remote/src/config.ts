@@ -1,3 +1,5 @@
+export const __DEV__ = import.meta.env.DEV ? true : false
+
 const defaultConfig = {
   baseURL: "",
   ossBucketMap: {
@@ -11,10 +13,11 @@ const defaultConfig = {
   },
 };
 
-if (import.meta.env.DEV) {
+if (__DEV__) {
   Object.assign(defaultConfig, {
     baseURL: "/proxy",
   } as typeof defaultConfig);
 }
+
 
 export default defaultConfig;

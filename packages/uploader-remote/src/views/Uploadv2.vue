@@ -3,9 +3,7 @@
     <el-card>
       <template #header>
         <div class="head">
-          <el-button class="back" size="mini" @click="onBack"
-            >返回</el-button
-          >
+          <el-button class="back" size="mini" @click="onBack">返回</el-button>
           <span class="title">上传{{ limit.scene }}导入</span>
           <a :href="limit.helpUrl" class="help">?</a>
         </div>
@@ -49,120 +47,175 @@
 <script lang="ts">
 import { osssts, sendFiles, close } from "@/api/uploader-pipe";
 import config from "@/config";
-import { viewterKey } from "@/context/viewter";
 import { axios } from "@/utils/axios";
 import { wrap } from "@/utils/wrap";
 import { FileMeta } from "@sharedkit/uploader";
 import { Message, MessageBox } from "element-ui";
-import { computed, defineComponent, inject, ref } from "vue-demi";
+import { computed, defineComponent, ref } from "vue-demi";
+import { useRouter } from "@/hooks/useRouter";
+
+type LimitOption = {
+  code: string; // *
+  status: "unopen" | "opened" | "closed"; // *
+  openid: string; // *
+  token: string; // * 操作令牌
+  maxAge: number; // 秒
+  scene: string; // 功能名称
+  size: number; // B
+  count: number; // 数量
+  exts: string[]; // 文件扩展名
+  prefix: string; // 上传地址前缀
+  cate: string; // 上传的数据桶
+  files: FileMeta[];
+};
 
 export default defineComponent({
   setup() {
-    const viewter = inject(viewterKey);
-    const limit = viewter?.params;
-
-    const limitExts = computed(() =>
-      limit.exts.map((e: string) => "." + e).join()
-    );
-    const limitSize = computed(() => limit.size / 1024 / 1024);
-
-    function beforeUpload(file: any) {
-      if (file.size / 1024 > limit.size) {
-        return Message.warning(
-          "文件超出限制，单文件最大" + limitSize.value + "MB"
-        );
-      }
-
-      return true;
-    }
-
-    const files: FileMeta[] = [];
-    async function uploadFile(upFile: any) {
-      console.log(upFile);
-      await uploadOss();
-      console.log(files);
-
-      async function uploadOss() {
-        const [_, ext = ""] = upFile.file.name.match(/(\.\w+)$/);
-        const filePath = limit.prefix + "/" + upFile.file.uid + ext;
-        const [err, ossData]: any = await wrap(osssts(limit.code).then((res) => res.data));
-        if(err){
-          await MessageBox.alert('传输码失效，请重新上传')
-          viewter?.to('home')
-          return;
-        }
-        const formData = new FormData();
-        formData.append("OSSAccessKeyId", ossData.OSSAccessKeyId);
-        formData.append("policy", ossData.policy);
-        formData.append("Signature", ossData.Signature);
-        formData.append("success_action_status", ossData.success_action_status);
-        formData.append("key", filePath.substr(1));
-        formData.append("file", upFile.file);
-        const ossUrl = (config as any).ossBucketMap[limit.cate];
-
-        await axios.post(ossUrl, formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        });
-
-        files.push({
-          name: upFile.file.uid,
-          size: upFile.file.size * 1024,
-          type: "file",
-          ext: ext.substr(1),
-          url: ossUrl + filePath,
-          urlPath: filePath,
-          path: upFile.file.name,
-          time: upFile.file.lastModified,
-        });
-      }
-    }
-
-    function onOverCount() {
-      Message.warning(`文件数量超出限制，最多上传${limit.count}个文件`);
-    }
-
-    const upload = ref()
-    async function onSuccess() {
-      const [cancel] = await wrap(MessageBox.confirm('上传成功，是否同步到手机端'))
-      if(cancel){
-        upload.value.clearFiles()
-      }else{
-        const [err] = await wrap(sendFiles(limit.code, files))
-        if(err){
-          await MessageBox.alert('传输码失效，请重新上传')
-        }
-        await MessageBox.alert('同步成功，请查看手机端')
-        await close(limit.code)
-        viewter?.to('home')
-      }
-    }
-
-    function onError() {
-      Message.warning("上传失败");
-    }
+    const router = useRouter();
+    const limit = router?.currentRoute.params as unknown as LimitOption;
 
     async function onBack() {
-      viewter?.to('home')
-      await close(limit.code)
+      router?.back();
+      await close(limit.code);
     }
 
-    return {
-      viewter,
-      limit,
+    const {
       limitExts,
       limitSize,
       upload,
-      onBack,
       uploadFile,
       beforeUpload,
       onOverCount,
       onSuccess,
-      onError
+      onError,
+    } = useUploader(limit);
+
+    return {
+      limit,
+      limitExts,
+      limitSize,
+      upload,
+      uploadFile,
+      beforeUpload,
+      onOverCount,
+      onSuccess,
+      onError,
+      onBack,
     };
   },
 });
+
+function useUploader(limit: LimitOption) {
+  const router = useRouter();
+  const limitExts = computed(() =>
+    limit.exts.map((e: string) => "." + e).join()
+  );
+  const limitSize = computed(() => limit.size / 1024 / 1024);
+
+  function beforeUpload(file: any) {
+    if (file.size / 1024 > limit.size) {
+      return Message.warning(
+        "文件超出限制，单文件最大" + limitSize.value + "MB"
+      );
+    }
+
+    return true;
+  }
+
+  const files: FileMeta[] = [];
+  async function uploadFile(upFile: any) {
+    await uploadOss();
+
+    addEvent({
+      cate: "电脑端上传",
+      p1: "v2",
+      id: "上传文件",
+      platform: "web",
+      status: "ok",
+    });
+
+    async function uploadOss() {
+      const [_, ext = ""] = upFile.file.name.match(/(\.\w+)$/);
+      const filePath = limit.prefix + "/" + upFile.file.uid + ext;
+      const [err, ossData]: any = await wrap(
+        osssts(limit.code).then((res) => res.data)
+      );
+      if (err) {
+        await MessageBox.alert("传输码失效，请重新上传");
+        router?.back();
+        return;
+      }
+      const formData = new FormData();
+      formData.append("OSSAccessKeyId", ossData.OSSAccessKeyId);
+      formData.append("policy", ossData.policy);
+      formData.append("Signature", ossData.Signature);
+      formData.append("success_action_status", ossData.success_action_status);
+      formData.append("key", filePath.substr(1));
+      formData.append("file", upFile.file);
+      const ossUrl = (config as any).ossBucketMap[limit.cate];
+
+      await axios.post(ossUrl, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      files.push({
+        name: upFile.file.uid,
+        size: upFile.file.size * 1024,
+        type: "file",
+        ext: ext.substr(1),
+        url: ossUrl + filePath,
+        urlPath: filePath,
+        path: upFile.file.name,
+        time: upFile.file.lastModified,
+      });
+    }
+  }
+
+  function onOverCount() {
+    Message.warning(`文件数量超出限制，最多上传${limit.count}个文件`);
+  }
+
+  const upload = ref();
+  async function onSuccess() {
+    const [cancel] = await wrap(
+      MessageBox.confirm("上传成功，是否同步到手机端")
+    );
+    if (cancel) {
+      upload.value.clearFiles();
+    } else {
+      const [err] = await wrap(sendFiles(limit.code, files));
+      if (err) {
+        await wrap(MessageBox.alert("传输码失效，请重新上传"));
+      }
+      addEvent({
+        cate: "上传完成",
+        p1: "v2",
+        id: "上传文件",
+        platform: "web",
+        status: "ok",
+      });
+      await wrap(MessageBox.alert("同步成功，请查看手机端"));
+      await close(limit.code);
+      router?.back();
+    }
+  }
+
+  function onError() {
+    Message.warning("上传失败");
+  }
+  return {
+    limitExts,
+    limitSize,
+    upload,
+    uploadFile,
+    beforeUpload,
+    onOverCount,
+    onSuccess,
+    onError,
+  };
+}
 </script>
 
 <style lang="scss" scoped>

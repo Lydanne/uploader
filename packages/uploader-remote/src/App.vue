@@ -9,7 +9,7 @@
       <span class="sub">文件传输助手</span>
     </div>
     <div class="main">
-      <component :is="view"></component>
+      <router-view></router-view>
     </div>
     <div class="foot">
       <span
@@ -19,43 +19,6 @@
     </div>
   </div>
 </template>
-
-<script lang="ts">
-import { View, Viewter, viewterKey } from "@/context/viewter";
-import { defineComponent, provide, ref } from "vue-demi";
-import Home from "./views/Home.vue";
-
-type ToParams = { code: string };
-
-export default defineComponent({
-  components: {
-    Home,
-    Uploadv1: () => import("./views/Uploadv1.vue"),
-    Uploadv2: () => import("./views/Uploadv2.vue"),
-  },
-  setup() {
-    const view = ref<View>("home");
-    const viewStore: Viewter<ToParams> = {
-      view,
-      params: { code: "" },
-      to,
-    };
-
-    function to(_view: View, _params: ToParams) {
-      view.value = _view;
-      viewStore.params = _params;
-      if(_params)
-      localStorage.setItem('viewParams', JSON.stringify(_params))
-    }
-
-    provide(viewterKey, viewStore);
-
-    return {
-      view,
-    };
-  },
-});
-</script>
 
 <style lang="scss">
 html,

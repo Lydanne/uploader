@@ -86,12 +86,11 @@
 
 <script>
 import axios from "axios";
-import { viewterKey } from "@/context/viewter";
 import { Message, MessageBox } from "element-ui";
-const host = import.meta.env.DEV ? "/proxy" : "";
+import config from "@/config";
+const host = config.baseURL;
 
 export default {
-  inject: [viewterKey],
   data() {
     console.log(this);
     return {
@@ -145,13 +144,7 @@ export default {
         (this.fileNames = []); //文件名
     },
     backend: function () {
-      window.location.href = "/";
-      return;
-      this.showUpload = false;
-      this.showTips = true;
-      (this.fileLists = []),
-        (this.filesPath = []), //文件路径
-        (this.fileNames = []); //文件名
+      this.$router.back();
     },
     handleExceed: function () {
       Message.error("只能上传一份班级名单");
@@ -298,6 +291,7 @@ export default {
           console.log(_this.filesPath);
           addEvent({
             cate: "电脑端上传",
+            p1: "v1",
             id: "上传文件",
             platform: "web",
             status: "ok",
@@ -305,6 +299,7 @@ export default {
         } else {
           addEvent({
             cate: "电脑端上传",
+            p1: "v1",
             id: "上传文件",
             platform: "web",
             status: "error",
@@ -363,6 +358,7 @@ export default {
             });
             addEvent({
               cate: "电脑端上传",
+              p1: "v1",
               id: "同步文件地址",
               platform: "web",
               status: "ok",
@@ -370,6 +366,7 @@ export default {
           } else {
             addEvent({
               cate: "电脑端上传",
+              p1: "v1",
               id: "同步文件地址",
               platform: "web",
               status: "error",
@@ -387,18 +384,16 @@ export default {
   },
   created() {
     let that = this;
-    const json = localStorage.getItem("viewParams");
-    if (json) {
-      this.input = JSON.parse(json).code;
-    }
+    this.input = this.$route.params.code;
     that.startUpload();
     axios.post(host + "/applet/getOssParams").then((res) => {
       console.log(res);
       that.ossData = res.data.data;
     });
 
-    addEvent("", {
+    addEvent({
       cate: "电脑端上传",
+      p1: "v1",
       id: "网址进入",
       platform: "web",
       status: "ok",
