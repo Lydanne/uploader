@@ -2,6 +2,9 @@ import path from "path";
 import { defineConfig } from "vite";
 import { createVuePlugin } from "vite-plugin-vue2";
 import legacy from '@vitejs/plugin-legacy'
+import dtoenv from 'dotenv'
+
+const env = dtoenv.config({ path: '.env' })
 
 const config = defineConfig({
   base:'./',
@@ -23,7 +26,7 @@ const config = defineConfig({
     port: 8081,
     proxy:{
         '/proxy': {
-          target: 'https://ab.welife001.com',
+          target: env.parsed.PROXY_TARGET,
           changeOrigin: true,
           rewrite: path => path.replace(/^\/proxy/, '')
         }
