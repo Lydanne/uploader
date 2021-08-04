@@ -9,6 +9,7 @@
         <div class="tip">请在下方输入传输码</div>
         <el-input
           class="input"
+          ref="input"
           v-model="code"
           placeholder="请输入传输码"
           size="normal"
@@ -25,7 +26,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, inject, ref } from "vue-demi";
+import { defineComponent, inject, onMounted, ref } from "vue-demi";
 import { open } from "@/api/uploader-pipe";
 import { wrap } from "@/utils/wrap";
 import { getQ } from "@/utils/getQ";
@@ -37,6 +38,11 @@ export default defineComponent({
   setup() {
     const code = ref(getQ());
     const router = useRouter();
+    
+    const input = ref()
+    onMounted(()=>{
+      input.value.focus()
+    })
 
     async function onSubmit() {
       const [v2Err, v2Res] = await wrap(open(code.value));
@@ -69,6 +75,7 @@ export default defineComponent({
     }
     return {
       code,
+      input,
       onSubmit,
     };
   }
