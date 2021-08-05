@@ -394,7 +394,7 @@ export default {
     addEvent({
       cate: "电脑端上传",
       p1: "v1",
-      id: "网址进入",
+      id: "准备上传",
       platform: "web",
       status: "ok",
     });

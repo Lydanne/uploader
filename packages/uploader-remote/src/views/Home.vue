@@ -38,11 +38,18 @@ export default defineComponent({
   setup() {
     const code = ref(getQ());
     const router = useRouter();
-    
-    const input = ref()
-    onMounted(()=>{
-      input.value.focus()
-    })
+
+    addEvent({
+      cate: "电脑端上传",
+      id: "进入网站",
+      platform: "web",
+      status: "ok",
+    });
+
+    const input = ref();
+    onMounted(() => {
+      input.value.focus();
+    });
 
     async function onSubmit() {
       const [v2Err, v2Res] = await wrap(open(code.value));
@@ -78,7 +85,7 @@ export default defineComponent({
       input,
       onSubmit,
     };
-  }
+  },
 });
 </script>
 

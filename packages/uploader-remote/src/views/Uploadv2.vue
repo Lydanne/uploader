@@ -129,7 +129,7 @@ function useUploader(limit: LimitOption) {
     addEvent({
       cate: "电脑端上传",
       p1: "v2",
-      id: "上传文件",
+      id: "准备上传",
       platform: "web",
       status: "ok",
     });
