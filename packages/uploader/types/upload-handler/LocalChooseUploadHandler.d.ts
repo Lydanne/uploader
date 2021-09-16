@@ -1,5 +1,5 @@
 /// <reference types="wechat-miniprogram" />
-import { UploadHandler, FileMeta, VerifyContentHandler } from "../core/UploadHandler";
+import { UploadHandler, FileMeta, VerifyContentHandler, Cate } from "../core/UploadHandler";
 export declare class LocalChooseUploadHandlerOption {
     exts: string[];
     count: number;
@@ -17,7 +17,6 @@ export declare class LocalChooseUploadHandler extends UploadHandler<LocalChooseU
     about(): void;
     destroy(): void;
 }
-declare type Cate = "record" | "video" | "img" | "answer_img" | "file" | "album" | "disk";
 export declare class UploadAliyunFile {
     cate: Cate;
     file: string;
@@ -36,5 +35,4 @@ export declare class UploadFileException extends Error {
     result: WechatMiniprogram.UploadFileSuccessCallbackResult;
     constructor(res: any);
 }
-export {};
 //# sourceMappingURL=LocalChooseUploadHandler.d.ts.map

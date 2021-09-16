@@ -11,6 +11,15 @@ export enum UploadHook {
   WAIT = "wait", // 上传完成之后，无论成功或失败，与uploaded回调参数有不同
 }
 
+export type Cate =
+  | "record" // 录音
+  | "video" // 视频
+  | "img" // 图片
+  | "answer_img" // 答题图片
+  | "file" // 文件，除图片视频录音
+  | "album" // 网盘相册
+  | "disk"; // 网盘
+
 export type CreatedHookArg = string; // type 上传类型, 是UploaderHandler.name()的返回值
 // export type BeforeUploadHookArg = FileMeta[];
 export type UploadedHookArg = FileMeta[];
@@ -30,6 +39,7 @@ export interface FileMeta {
   urlPath?: string; // 文件在OSS的上除去域名的部分
   path?: string; // 文件在本地到位置
   time?: number; // 文件在会话的时间
+  duration?: number; // 音视频文件的时长
 }
 
 export type HookCb<T> = (data?: T, that?: any) => void;

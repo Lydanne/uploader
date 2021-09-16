@@ -8,6 +8,7 @@ import {
   VerifyFileException,
   UploadHandlerConstruction,
   VerifyContentHandler,
+  Cate,
 } from "../core/UploadHandler";
 
 export class LocalChooseUploadHandlerOption {
@@ -130,14 +131,6 @@ export class LocalChooseUploadHandler extends UploadHandler<LocalChooseUploadHan
   destroy() {}
 }
 
-type Cate =
-  | "record" // 录音
-  | "video" // 视频
-  | "img" // 图片
-  | "answer_img" // 答题图片
-  | "file" // 文件，除图片视频录音
-  | "album" // 网盘相册
-  | "disk"; // 网盘
 export class UploadAliyunFile {
   // TODO: 这是是 `utils/uploadoss/uploadAliyun.js` uploadFile 第一个参数的类型
   //       目前的临时解决方案，之后封装了API之后修改

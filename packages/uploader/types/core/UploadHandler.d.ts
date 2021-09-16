@@ -8,6 +8,7 @@ export declare enum UploadHook {
     DESTROYED = "destroyed",
     WAIT = "wait"
 }
+export declare type Cate = "record" | "video" | "img" | "answer_img" | "file" | "album" | "disk";
 export declare type CreatedHookArg = string;
 export declare type UploadedHookArg = FileMeta[];
 export declare type AboutHookArg = {
@@ -25,6 +26,7 @@ export interface FileMeta {
     urlPath?: string;
     path?: string;
     time?: number;
+    duration?: number;
 }
 export declare type HookCb<T> = (data?: T, that?: any) => void;
 export interface UploadHandlerConstruction<T> {

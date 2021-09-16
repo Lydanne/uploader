@@ -2,6 +2,7 @@ import { UrlParser } from "./../utils/UrlParser";
 import { optionHander, sleep } from "../utils/Function";
 import {
   AboutException,
+  Cate,
   FileMeta,
   UploadHandler,
   VerifyContentHandler,
@@ -20,14 +21,6 @@ export type ReadAssetUrlHandler = (
   uploadHandler: RemoteUploadHandler
 ) => Promise<FileMeta[] | undefined | false>;
 
-type Cate =
-  | "record"
-  | "video"
-  | "img"
-  | "answer_img"
-  | "file"
-  | "album"
-  | "disk";
 
 export class RemoteUploadHandlerOption {
   exts: string[] = []; // 限制文件后缀
