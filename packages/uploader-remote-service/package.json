@@ -1,6 +1,6 @@
 {
   "name": "@sharedkit/uploader-remote-service",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "uploader remote upload service.",
   "author": "WumaCoder <1829913225@qq.com>",
   "homepage": "https://github.com/WumaCoder/uploader#readme",
