@@ -21,7 +21,6 @@ export type ReadAssetUrlHandler = (
   uploadHandler: RemoteUploadHandler
 ) => Promise<FileMeta[] | undefined | false>;
 
-
 export class RemoteUploadHandlerOption {
   exts: string[] = []; // 限制文件后缀
   count: number = 1; // 限制文件数量
@@ -59,8 +58,8 @@ export class RemoteUploadHandler extends UploadHandler<
     const files = await pool();
     await verifyFile(files);
 
-    if(this._code) await this.option().removeCodeHandler(this._code, this)
-    this._code = ''
+    if (this._code) await this.option().removeCodeHandler(this._code, this);
+    this._code = "";
 
     return files;
     async function pool() {
@@ -72,8 +71,9 @@ export class RemoteUploadHandler extends UploadHandler<
         while (self._codeExpriedAt >= Date.now()) {
           if (self._aboutPool) {
             self._aboutPool = false;
-            if(self._code) await self.option().removeCodeHandler(self._code, self)
-            self._code = ''        
+            if (self._code)
+              await self.option().removeCodeHandler(self._code, self);
+            self._code = "";
             throw new AboutException();
           }
           const urls = await self.option().readAssetUrlHandler(code, self);
@@ -95,7 +95,7 @@ export class RemoteUploadHandler extends UploadHandler<
       }
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
-        if (!self.option().exts.includes(file.ext)) {
+        if (!self.option().exts.includes(file.ext.toLowerCase())) {
           throw new VerifyFileException("ext", file);
         }
         if (!(await self.option().verifyContentHandler(file))) {
@@ -111,7 +111,7 @@ export class RemoteUploadHandler extends UploadHandler<
 
   async about() {
     this._aboutPool = true;
-    if(this._code) await this.option().removeCodeHandler(this._code, this);
-    this._code = ''
+    if (this._code) await this.option().removeCodeHandler(this._code, this);
+    this._code = "";
   }
 }
