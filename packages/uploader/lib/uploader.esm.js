@@ -466,7 +466,7 @@ class RemoteUploadHandler extends UploadHandler {
         await verifyFile(files);
         if (this._code)
             await this.option().removeCodeHandler(this._code, this);
-        this._code = '';
+        this._code = "";
         return files;
         async function pool() {
             while (true) {
@@ -479,7 +479,7 @@ class RemoteUploadHandler extends UploadHandler {
                         self._aboutPool = false;
                         if (self._code)
                             await self.option().removeCodeHandler(self._code, self);
-                        self._code = '';
+                        self._code = "";
                         throw new AboutException();
                     }
                     const urls = await self.option().readAssetUrlHandler(code, self);
@@ -500,7 +500,7 @@ class RemoteUploadHandler extends UploadHandler {
             }
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
-                if (!self.option().exts.includes(file.ext)) {
+                if (!self.option().exts.includes(file.ext.toLowerCase())) {
                     throw new VerifyFileException("ext", file);
                 }
                 if (!(await self.option().verifyContentHandler(file))) {
@@ -516,7 +516,7 @@ class RemoteUploadHandler extends UploadHandler {
         this._aboutPool = true;
         if (this._code)
             await this.option().removeCodeHandler(this._code, this);
-        this._code = '';
+        this._code = "";
     }
 }
 
