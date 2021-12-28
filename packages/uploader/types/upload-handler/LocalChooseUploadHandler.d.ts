@@ -1,5 +1,6 @@
 /// <reference types="wechat-miniprogram" />
-import { UploadHandler, FileMeta, VerifyContentHandler, Cate } from "../core/UploadHandler";
+import { UploadHandler, VerifyContentHandler, Cate } from "../core/UploadHandler";
+import { UploadAliyunFile } from "src/utils/tools";
 export declare class LocalChooseUploadHandlerOption {
     exts: string[];
     count: number;
@@ -13,16 +14,9 @@ export declare class LocalChooseUploadHandlerOption {
 export declare type uploadFileHandler = (files: UploadAliyunFile[]) => Promise<string> | void;
 export declare class LocalChooseUploadHandler extends UploadHandler<LocalChooseUploadHandlerOption> {
     constructor(option: LocalChooseUploadHandlerOption);
-    upload(): Promise<FileMeta[]>;
+    upload(): Promise<import("../core/UploadHandler").FileMeta[]>;
     about(): void;
     destroy(): void;
-}
-export declare class UploadAliyunFile {
-    cate: Cate;
-    file: string;
-    new_name: string;
-    size: number;
-    duration?: number;
 }
 export declare class CantUseApiException extends Error {
     readonly name: string;

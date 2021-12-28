@@ -25,6 +25,7 @@ export interface FileMeta {
     url?: string;
     urlPath?: string;
     path?: string;
+    resource?: string;
     time?: number;
     duration?: number;
 }
@@ -46,7 +47,7 @@ export declare abstract class UploadHandler<T, CUH = any, H = CUH | UploadHook> 
      * 需要重写的方法，如果不重写会报错，核心的上传方法
      * @returns Promise
      */
-    upload(): Promise<FileMeta[]>;
+    upload(tempFiles?: WechatMiniprogram.ChooseFile[]): Promise<FileMeta[]>;
     /**
      * 需要重写的方法，如果不重写会报错，销毁方法
      * @returns void

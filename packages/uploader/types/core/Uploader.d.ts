@@ -1,3 +1,4 @@
+/// <reference types="wechat-miniprogram" />
 import { UploadHandler, UploadHook, HookCb, FileMeta, UploadHandlerConstruction } from "./UploadHandler";
 export declare class Uploader<O> {
     private _uploadHandler;
@@ -19,7 +20,7 @@ export declare class Uploader<O> {
      * 开始上传
      * @returns Uploader
      */
-    upload(): Uploader<O>;
+    upload(tempFiles?: WechatMiniprogram.ChooseFile[]): Uploader<O>;
     /**
      * 监听一个钩子
      * @param  {H} hook 钩子类型

@@ -108,7 +108,7 @@ class UploadHandler {
      * 需要重写的方法，如果不重写会报错，核心的上传方法
      * @returns Promise
      */
-    upload() {
+    upload(tempFiles) {
         throw new Error("Method not implemented.");
     }
     /**
@@ -158,7 +158,8 @@ class Uploader {
      * @returns Uploader
      */
     loadUploadHandler(LoadUploadHandler, option) {
-        if (this._uploadHandler && this._uploadHandler instanceof LoadUploadHandler) {
+        if (this._uploadHandler &&
+            this._uploadHandler instanceof LoadUploadHandler) {
             return this;
         }
         this._isRun = false;
@@ -180,13 +181,13 @@ class Uploader {
      * 开始上传
      * @returns Uploader
      */
-    upload() {
+    upload(tempFiles) {
         if (this._isRun) {
             return this;
         }
         this._isRun = true;
         this._uploadHandler
-            .upload()
+            .upload(tempFiles)
             .then((res) => {
             this._isRun = false;
             this._uploadHandler.hook().emit(exports.UploadHook.UPLOADED, res);
@@ -276,20 +277,6 @@ class Uploader {
     }
 }
 
-class UrlParser {
-    static parse(url) {
-        const ext = UrlParser.ext(url);
-        return {
-            url,
-            ext,
-        };
-    }
-    static ext(url) {
-        const [_, ext = ""] = url.match(/.(\w+)$/);
-        return ext;
-    }
-}
-
 var CHARS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz".split("");
 function uuid(len, radix = CHARS.length) {
     var chars = CHARS, uuid = [];
@@ -311,6 +298,82 @@ function uuid(len, radix = CHARS.length) {
     return uuid.join("");
 }
 
+class UrlParser {
+    static parse(url) {
+        const ext = UrlParser.ext(url);
+        return {
+            url,
+            ext,
+        };
+    }
+    static ext(url) {
+        const [_, ext = ""] = url.match(/.(\w+)$/);
+        return ext;
+    }
+}
+
+function transfromFileMeta(tempFiles = [], option) {
+    if (tempFiles.length > option.count) {
+        throw new VerifyFileException("count", tempFiles);
+    }
+    return tempFiles.map((tempFile) => {
+        if (tempFile.size > option.size) {
+            throw new VerifyFileException("size", tempFile);
+        }
+        if (tempFile.type !== option.type) {
+            throw new VerifyFileException("type", tempFile);
+        }
+        let ext = UrlParser.ext(tempFile.name);
+        if (option.exts?.length && !option.exts.includes(ext.toLowerCase())) {
+            throw new VerifyFileException("exts", tempFile);
+        }
+        const resource = `${uuid()}.${ext}`;
+        return {
+            size: tempFile.size,
+            ext,
+            name: tempFile.name,
+            type: tempFile.type,
+            path: tempFile.path,
+            time: tempFile.time,
+            urlPath: `${option.prefix}/${resource}`,
+            resource,
+        };
+    });
+}
+function transfromUploadAliyunFile(files, option) {
+    const typeToCate = {
+        all: "disk",
+        video: "video",
+        image: "img",
+        file: "file",
+    };
+    const ossBucketMap = {
+        // record: "https://campusrecord.welife001.com",
+        // video: "https://campusvideo.welife001.com",
+        // img: "https://campus002.welife001.com",
+        // file: "https://campusfile.welife001.com",
+        answer_img: "https://campus002.welife001.com",
+        album: "https://album.welife001.com",
+        disk: "https://disk.welife001.com",
+        record: "https://record.banjixiaoguanjia.com",
+        video: "https://video.banjixiaoguanjia.com",
+        img: "https://img.banjixiaoguanjia.com",
+        file: "https://file.banjixiaoguanjia.com",
+    };
+    return files.map((file) => {
+        const cate = option.cate || typeToCate[file.type]; // 如果没有传入cate， 自动推算cate类型
+        const url = ossBucketMap[cate] + file.urlPath;
+        file.url = url;
+        return {
+            cate,
+            url,
+            file: file.path,
+            new_name: file.urlPath.substr(1),
+            size: file.size,
+        };
+    });
+}
+
 class LocalChooseUploadHandlerOption {
     exts = []; // 限制文件后缀，最后会传给微信API
     count = 1; // 限制文件数量，最后会传给微信API
@@ -329,8 +392,8 @@ class LocalChooseUploadHandler extends UploadHandler {
     async upload() {
         const self = this;
         const tempFiles = await selectFile();
-        const files = transfromFileMeta(tempFiles);
-        const uploadAliyunFiles = await transfromUploadAliyunFile(files);
+        const files = transfromFileMeta(tempFiles, this.option());
+        const uploadAliyunFiles = await transfromUploadAliyunFile(files, this.option());
         await this.option().uploadFileHandler(uploadAliyunFiles);
         for (let i = 0; i < files.length; i++) {
             const file = files[i];
@@ -350,74 +413,9 @@ class LocalChooseUploadHandler extends UploadHandler {
             });
             return tempFiles;
         }
-        function transfromFileMeta(tempFiles = []) {
-            if (tempFiles.length > self.option().count) {
-                throw new VerifyFileException("count", tempFiles);
-            }
-            return tempFiles.map((tempFile) => {
-                if (tempFile.size > self.option().size) {
-                    throw new VerifyFileException("size", tempFile);
-                }
-                if (tempFile.type !== self.option().type) {
-                    throw new VerifyFileException("type", tempFile);
-                }
-                let ext = UrlParser.ext(tempFile.name);
-                if (self.option().exts?.length &&
-                    !self.option().exts.includes(ext.toLowerCase())) {
-                    throw new VerifyFileException("exts", tempFile);
-                }
-                return {
-                    size: tempFile.size,
-                    ext,
-                    name: tempFile.name,
-                    type: tempFile.type,
-                    path: tempFile.path,
-                    time: tempFile.time,
-                    urlPath: `${self.option().prefix}/${uuid()}.${ext}`,
-                };
-            });
-        }
-        function transfromUploadAliyunFile(files) {
-            const typeToCate = {
-                all: "disk",
-                video: "video",
-                image: "img",
-                file: "file",
-            };
-            const ossBucketMap = {
-                record: "https://campusrecord.welife001.com",
-                video: "https://campusvideo.welife001.com",
-                img: "https://campus002.welife001.com",
-                answer_img: "https://campus002.welife001.com",
-                file: "https://campusfile.welife001.com",
-                album: "https://album.welife001.com",
-                disk: "https://disk.welife001.com", //网盘文件
-            };
-            return files.map((file) => {
-                const cate = self.option().cate || typeToCate[file.type]; // 如果没有传入cate， 自动推算cate类型
-                const url = ossBucketMap[cate] + file.urlPath;
-                file.url = url;
-                return {
-                    cate,
-                    url,
-                    file: file.path,
-                    new_name: file.urlPath.substr(1),
-                    size: file.size,
-                };
-            });
-        }
     }
     about() { }
     destroy() { }
-}
-class UploadAliyunFile {
-    // TODO: 这是是 `utils/uploadoss/uploadAliyun.js` uploadFile 第一个参数的类型
-    //       目前的临时解决方案，之后封装了API之后修改
-    cate;
-    file;
-    new_name;
-    size;
-    duration;
 }
 class CantUseApiException extends Error {
     name = "CantUseApiException";
@@ -524,14 +522,45 @@ class RemoteUploadHandler extends UploadHandler {
     }
 }
 
+class LocalUploadHandlerOption {
+    exts = []; // 限制文件后缀，最后会传给微信API
+    count = 1; // 限制文件数量，最后会传给微信API
+    type = "all"; // 类型，给微信API的
+    cate; // 会传给 aliyunOss 这个方法, 如果不传会通过type推算
+    size = 1024 * 1024 * 3; // B, default 3MB 限制大小
+    prefix = ""; // 资源路径前缀
+    uploadFileHandler; // 上传文件的钩子函数
+    verifyContentHandler = async () => true;
+}
+class LocalUploadHandler extends UploadHandler {
+    constructor(option) {
+        super(optionHander(option, new LocalUploadHandlerOption()));
+    }
+    async upload(tempFiles) {
+        const files = transfromFileMeta(tempFiles, this.option());
+        const uploadAliyunFiles = await transfromUploadAliyunFile(files, this.option());
+        await this.option().uploadFileHandler(uploadAliyunFiles);
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            if (!(await this.option().verifyContentHandler(file))) {
+                throw new VerifyFileException("content", file);
+            }
+        }
+        return files;
+    }
+    about() { }
+    destroy() { }
+}
+
 exports.AboutException = AboutException;
 exports.CantUseApiException = CantUseApiException;
 exports.EventHub = EventHub;
 exports.LocalChooseUploadHandler = LocalChooseUploadHandler;
 exports.LocalChooseUploadHandlerOption = LocalChooseUploadHandlerOption;
+exports.LocalUploadHandler = LocalUploadHandler;
+exports.LocalUploadHandlerOption = LocalUploadHandlerOption;
 exports.RemoteUploadHandler = RemoteUploadHandler;
 exports.RemoteUploadHandlerOption = RemoteUploadHandlerOption;
-exports.UploadAliyunFile = UploadAliyunFile;
 exports.UploadFileException = UploadFileException;
 exports.UploadHandler = UploadHandler;
 exports.Uploader = Uploader;
