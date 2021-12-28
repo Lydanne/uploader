@@ -1,15 +1,15 @@
-import { UrlParser } from "./../utils/UrlParser";
 import { optionHander } from "../utils/Function";
-import { uuid } from "../utils/UniqueCode";
 import {
   UploadHandler,
-  FileMeta,
-  UploadHook,
   VerifyFileException,
-  UploadHandlerConstruction,
   VerifyContentHandler,
   Cate,
 } from "../core/UploadHandler";
+import {
+  UploadAliyunFile,
+  transfromFileMeta,
+  transfromUploadAliyunFile,
+} from "src/utils/tools";
 
 export class LocalChooseUploadHandlerOption {
   exts: string[] = []; // 限制文件后缀，最后会传给微信API
@@ -35,9 +35,12 @@ export class LocalChooseUploadHandler extends UploadHandler<LocalChooseUploadHan
   async upload() {
     const self = this;
     const tempFiles = await selectFile();
-    const files = transfromFileMeta(tempFiles);
+    const files = transfromFileMeta(tempFiles, this.option());
 
-    const uploadAliyunFiles = await transfromUploadAliyunFile(files);
+    const uploadAliyunFiles = await transfromUploadAliyunFile(
+      files,
+      this.option()
+    );
 
     await this.option().uploadFileHandler(uploadAliyunFiles);
 
@@ -63,82 +66,11 @@ export class LocalChooseUploadHandler extends UploadHandler<LocalChooseUploadHan
 
       return tempFiles;
     }
-    function transfromFileMeta(
-      tempFiles: WechatMiniprogram.ChooseFile[] = []
-    ): FileMeta[] {
-      if (tempFiles.length > self.option().count) {
-        throw new VerifyFileException("count", tempFiles);
-      }
-      return tempFiles.map((tempFile) => {
-        if (tempFile.size > self.option().size) {
-          throw new VerifyFileException("size", tempFile);
-        }
-        if (tempFile.type !== self.option().type) {
-          throw new VerifyFileException("type", tempFile);
-        }
-        let ext = UrlParser.ext(tempFile.name);
-        if (
-          self.option().exts?.length &&
-          !self.option().exts.includes(ext.toLowerCase())
-        ) {
-          throw new VerifyFileException("exts", tempFile);
-        }
-        return {
-          size: tempFile.size,
-          ext,
-          name: tempFile.name,
-          type: tempFile.type,
-          path: tempFile.path,
-          time: tempFile.time,
-          urlPath: `${self.option().prefix}/${uuid()}.${ext}`,
-        };
-      });
-    }
-    function transfromUploadAliyunFile(files: FileMeta[]): UploadAliyunFile[] {
-      const typeToCate = {
-        all: "disk",
-        video: "video",
-        image: "img",
-        file: "file",
-      };
-      const ossBucketMap = {
-        record: "https://campusrecord.welife001.com",
-        video: "https://campusvideo.welife001.com",
-        img: "https://campus002.welife001.com",
-        answer_img: "https://campus002.welife001.com",
-        file: "https://campusfile.welife001.com",
-        album: "https://album.welife001.com", //网盘相册
-        disk: "https://disk.welife001.com", //网盘文件
-      };
-
-      return files.map((file) => {
-        const cate = self.option().cate || typeToCate[file.type]; // 如果没有传入cate， 自动推算cate类型
-        const url = ossBucketMap[cate] + file.urlPath;
-        file.url = url;
-        return {
-          cate,
-          url,
-          file: file.path,
-          new_name: file.urlPath.substr(1),
-          size: file.size,
-        };
-      });
-    }
   }
 
   about() {}
 
   destroy() {}
-}
-
-export class UploadAliyunFile {
-  // TODO: 这是是 `utils/uploadoss/uploadAliyun.js` uploadFile 第一个参数的类型
-  //       目前的临时解决方案，之后封装了API之后修改
-  cate: Cate;
-  file: string;
-  new_name: string;
-  size: number;
-  duration?: number;
 }
 
 export class CantUseApiException extends Error {

@@ -32,10 +32,13 @@ export class Uploader<O> {
     LoadUploadHandler: UploadHandlerConstruction<O>,
     option?: O
   ): Uploader<O> {
-    if(this._uploadHandler && this._uploadHandler instanceof LoadUploadHandler){
+    if (
+      this._uploadHandler &&
+      this._uploadHandler instanceof LoadUploadHandler
+    ) {
       return this;
     }
-    this._isRun = false
+    this._isRun = false;
     let hook = null;
     if (this._uploadHandler) {
       this._uploadHandler.about();
@@ -58,20 +61,20 @@ export class Uploader<O> {
    * 开始上传
    * @returns Uploader
    */
-  upload(): Uploader<O> {
-    if(this._isRun){
-      return this
+  upload(tempFiles?: WechatMiniprogram.ChooseFile[]): Uploader<O> {
+    if (this._isRun) {
+      return this;
     }
-    this._isRun = true
+    this._isRun = true;
     this._uploadHandler
-      .upload()
+      .upload(tempFiles)
       .then((res) => {
-        this._isRun = false
+        this._isRun = false;
         this._uploadHandler.hook().emit(UploadHook.UPLOADED, res);
         this._uploadHandler.hook().emit(UploadHook.WAIT, null, res);
       })
       .catch((err) => {
-        this._isRun = false
+        this._isRun = false;
         this._uploadHandler.hook().emit(UploadHook.ERROR, err);
         this._uploadHandler.hook().emit(UploadHook.WAIT, err, null);
       });
@@ -147,7 +150,7 @@ export class Uploader<O> {
   }
 
   about(): Uploader<O> {
-    if(this._isRun){
+    if (this._isRun) {
       this._uploadHandler.about();
       this._uploadHandler.hook().emit(UploadHook.ABOUT);
     }

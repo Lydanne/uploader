@@ -38,6 +38,7 @@ export interface FileMeta {
   url?: string; // 文件在OSS的完整地址
   urlPath?: string; // 文件在OSS的上除去域名的部分
   path?: string; // 文件在本地到位置
+  resource?: string; // 资源
   time?: number; // 文件在会话的时间
   duration?: number; // 音视频文件的时长
 }
@@ -78,7 +79,7 @@ export abstract class UploadHandler<T, CUH = any, H = CUH | UploadHook> {
    * 需要重写的方法，如果不重写会报错，核心的上传方法
    * @returns Promise
    */
-  upload(): Promise<FileMeta[]> {
+  upload(tempFiles?: WechatMiniprogram.ChooseFile[]): Promise<FileMeta[]> {
     throw new Error("Method not implemented.");
   }
 
