@@ -323,7 +323,7 @@ function transfromFileMeta(tempFiles = [], option) {
         if (option.exts?.length && !option.exts.includes(ext.toLowerCase())) {
             throw new VerifyFileException("exts", tempFile);
         }
-        const resource = `${uuid()}.${ext}`;
+        const resource = `${uuid()}_cos.${ext}`;
         return {
             size: tempFile.size,
             ext,
