@@ -11,7 +11,7 @@ export declare class LocalChooseUploadHandlerOption {
     uploadFileHandler: uploadFileHandler;
     verifyContentHandler?: VerifyContentHandler;
 }
-export declare type uploadFileHandler = (files: UploadAliyunFile[]) => Promise<string> | void;
+export type uploadFileHandler = (files: UploadAliyunFile[]) => Promise<string> | void;
 export declare class LocalChooseUploadHandler extends UploadHandler<LocalChooseUploadHandlerOption> {
     constructor(option: LocalChooseUploadHandlerOption);
     upload(): Promise<import("../core/UploadHandler").FileMeta[]>;

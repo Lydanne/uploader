@@ -25,8 +25,8 @@
     "url": "git+https://github.com/WumaCoder/uploader.git"
   },
   "scripts": {
-    "build": "rollup -c",
-    "dev": "rollup -c -w",
+    "build": "rollup --config rollup.config.ts --configPlugin typescript",
+    "dev": "rollup --config rollup.config.ts --configPlugin typescript -w",
     "test": "jest"
   },
   "bugs": {

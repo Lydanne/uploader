@@ -1,22 +1,22 @@
 /// <reference types="wechat-miniprogram" />
 import { EventHub } from "../utils/EventHub";
 export declare enum UploadHook {
-    CREATED = "created",
-    UPLOADED = "uploaded",
+    CREATED = "created",// 创建完成后
+    UPLOADED = "uploaded",//上传完成后
     ABOUT = "about",
-    ERROR = "error",
-    DESTROYED = "destroyed",
+    ERROR = "error",// 报错之后
+    DESTROYED = "destroyed",// 销毁之后
     WAIT = "wait"
 }
-export declare type Cate = "record" | "video" | "img" | "answer_img" | "file" | "album" | "disk";
-export declare type CreatedHookArg = string;
-export declare type UploadedHookArg = FileMeta[];
-export declare type AboutHookArg = {
+export type Cate = "record" | "video" | "img" | "answer_img" | "file" | "album" | "disk";
+export type CreatedHookArg = string;
+export type UploadedHookArg = FileMeta[];
+export type AboutHookArg = {
     hook: UploadHook;
     process: number;
     message: string;
 };
-export declare type ErrorHookArg = Error;
+export type ErrorHookArg = Error;
 export interface FileMeta {
     name?: string;
     size?: number;
@@ -29,7 +29,7 @@ export interface FileMeta {
     time?: number;
     duration?: number;
 }
-export declare type HookCb<T> = (data?: T, that?: any) => void;
+export type HookCb<T> = (data?: T, that?: any) => void;
 export interface UploadHandlerConstruction<T> {
     new (option?: T): UploadHandler<T>;
 }
@@ -65,5 +65,5 @@ export declare class AboutException extends Error {
     type: string;
     constructor();
 }
-export declare type VerifyContentHandler = (file: FileMeta) => Promise<boolean>;
+export type VerifyContentHandler = (file: FileMeta) => Promise<boolean>;
 //# sourceMappingURL=UploadHandler.d.ts.map

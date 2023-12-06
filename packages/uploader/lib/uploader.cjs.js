@@ -1,7 +1,5 @@
 'use strict';
 
-Object.defineProperty(exports, '__esModule', { value: true });
-
 function optionHander(option, defaultOption = {}) {
     if (!option || typeof option !== "object") {
         return option || defaultOption;
@@ -353,8 +351,8 @@ function transfromUploadAliyunFile(files, option) {
         // img: "https://campus002.welife001.com",
         // file: "https://campusfile.welife001.com",
         answer_img: "https://campus002.welife001.com",
-        album: "https://album.welife001.com",
-        disk: "https://disk.welife001.com",
+        album: "https://album.welife001.com", //网盘相册
+        disk: "https://disk.welife001.com", //网盘文件
         record: "https://record.banjixiaoguanjia.com",
         video: "https://video.banjixiaoguanjia.com",
         img: "https://img.banjixiaoguanjia.com",

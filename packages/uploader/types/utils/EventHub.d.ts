@@ -8,6 +8,6 @@ export declare class EventHub<K = keyof {}> {
     events(): Map<K, Set<EventHubCb<any>>>;
     asyncEmit(key: K, ...args: any[]): Promise<void>;
 }
-declare type EventHubCb<T = any> = (...args: T[]) => void;
+type EventHubCb<T = any> = (...args: T[]) => void;
 export {};
 //# sourceMappingURL=EventHub.d.ts.map
