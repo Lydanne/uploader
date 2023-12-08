@@ -28,6 +28,8 @@ export interface FileMeta {
     resource?: string;
     time?: number;
     duration?: number;
+    creatorName?: string;
+    _raw_?: any;
 }
 export type HookCb<T> = (data?: T, that?: any) => void;
 export interface UploadHandlerConstruction<T> {

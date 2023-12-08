@@ -8,7 +8,7 @@ export type OAuthHandlerRes = {
     scope: string;
     client_id: string;
 };
-export type OAuthHandler = (uploadHandler: QQDocUploadHandler, oAuthHandlerRes?: OAuthHandlerRes) => Promise<OAuthHandlerRes>;
+export type OAuthHandler = (oAuthHandlerRes?: OAuthHandlerRes) => Promise<OAuthHandlerRes>;
 export declare class QQDocUploadHandlerOption {
     exts: string[];
     count: number;
@@ -22,13 +22,15 @@ export declare class QQDocUploadHandlerOption {
     verifyContentHandler: VerifyContentHandler;
 }
 export declare enum QQDocHook {
+    GET_TOKEN_OK = "getTokenOk",
+    BEFORE_FILTER = "beforeFilter",
+    AFTER_FILTER = "afterFilter"
 }
 /**
  * 腾讯文档上传处理器
  */
 export declare class QQDocUploadHandler extends UploadHandler<QQDocUploadHandlerOption, QQDocHook> {
     private _token;
-    private _tokenExpiredAt;
     private _aboutPool;
     constructor(option: QQDocUploadHandlerOption);
     upload(): Promise<FileMeta[]>;

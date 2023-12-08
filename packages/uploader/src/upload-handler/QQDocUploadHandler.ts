@@ -21,7 +21,6 @@ export type OAuthHandlerRes = {
 };
 
 export type OAuthHandler = (
-  uploadHandler: QQDocUploadHandler,
   oAuthHandlerRes?: OAuthHandlerRes // 有传这个字段表示要刷新token
 ) => Promise<OAuthHandlerRes>;
 
@@ -40,7 +39,11 @@ export class QQDocUploadHandlerOption {
   verifyContentHandler: VerifyContentHandler = async () => true; // 验证文件内容
 }
 
-export enum QQDocHook {}
+export enum QQDocHook {
+  GET_TOKEN_OK = "getTokenOk",
+  BEFORE_FILTER = "beforeFilter",
+  AFTER_FILTER = "afterFilter",
+}
 
 /**
  * 腾讯文档上传处理器
@@ -50,7 +53,6 @@ export class QQDocUploadHandler extends UploadHandler<
   QQDocHook
 > {
   private _token: OAuthHandlerRes;
-  private _tokenExpiredAt: number; // 过期时间
   private _aboutPool = false;
   constructor(option: QQDocUploadHandlerOption) {
     super(optionHander(option, new QQDocUploadHandlerOption()));
@@ -59,30 +61,49 @@ export class QQDocUploadHandler extends UploadHandler<
   async upload(): Promise<FileMeta[]> {
     const self = this;
 
-    // self.hook().emit(QQDocHook.CREATED_CODE, code);
+    const token = await this.option().oauthHandler(this._token);
+    this._token = token;
+    self.hook().emit(QQDocHook.GET_TOKEN_OK, token);
+
     let next = 0;
     const selectFiles = await this.option().selectFileView(() => {
-      return self
-        .driveFilter({
-          fileType: "file",
-          limit: 20,
-          start: next,
-        })
-        .then((res) => {
-          next = res.next;
-          return res.list.map((item) => {
-            return {
-              id: item.ID,
-              name: item.title,
-              ext: UrlParser.ext(item.title),
-              size: 0,
-              url: item.url,
-            };
-          });
+      const opt = {
+        fileType: "doc-slide-sheet-pdf",
+        limit: 20,
+        start: next,
+      };
+      self.hook().emit(QQDocHook.BEFORE_FILTER, opt);
+
+      return self.driveFilter(opt).then((res) => {
+        next = res.next;
+        self.hook().emit(QQDocHook.AFTER_FILTER, res);
+        return res.list.map((item) => {
+          return {
+            id: item.ID,
+            name: item.title,
+            ext: {
+              doc: "doc",
+              sheet: "xls",
+              slide: "ppt",
+              pdf: "pdf",
+              mind: "mind",
+              folder: "folder",
+              shortcut: "shortcut",
+            }[item.type],
+            size: 0,
+            url: item.url,
+            urlPath: item.url,
+            path: item.url,
+            type: item.type === 'folder' ? 'folder' : "file",
+            creatorName: item.creatorName,
+            time: item.createTime * 1000,
+            _raw_: item,
+          } as FileMeta;
         });
+      });
     });
 
-    await verifyFile(selectFiles);
+    // await verifyFile(selectFiles);
 
     return selectFiles;
 
@@ -120,10 +141,11 @@ export class QQDocUploadHandler extends UploadHandler<
     // limit	integer	否	拉取数，上限为 20
     // isOwner	integer	否	根据请求者是否为文件拥有者进行过滤，1：返回所有文件，2：返回请求者拥有的文件，默认为返回所有文件
     // fileType	string	否	指定要拉取的文件品类，可传多个，用减号 - 分割，默认为拉取所有品类。见文件类型
-    const res = await this.request<{ next: number; list: FileItem[] }>(
-      `/openapi/drive/v2/filter?${urlParser(opt)}`
-    );
-    return res.data;
+    const res = await this.request<{
+      data: { next: number; list: FileItem[] };
+      ret: number;
+    }>(`/openapi/drive/v2/filter?${urlParser(opt)}`);
+    return res.data.data;
   }
 
   private request<R>(path: string, data?: any, method: any = "GET") {

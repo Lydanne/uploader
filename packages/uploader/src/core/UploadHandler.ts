@@ -41,6 +41,8 @@ export interface FileMeta {
   resource?: string; // 资源
   time?: number; // 文件在会话的时间
   duration?: number; // 音视频文件的时长
+  creatorName?: string; // 创建人
+  _raw_?: any;
 }
 
 export type HookCb<T> = (data?: T, that?: any) => void;

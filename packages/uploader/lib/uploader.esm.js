@@ -303,7 +303,7 @@ class UrlParser {
         };
     }
     static ext(url) {
-        const [_, ext = ""] = url.match(/.(\w+)$/);
+        const [_, ext = ""] = url.match(/.(\w+)$/) || [];
         return ext;
     }
 }
@@ -548,5 +548,122 @@ class LocalUploadHandler extends UploadHandler {
     destroy() { }
 }
 
-export { AboutException, CantUseApiException, EventHub, LocalChooseUploadHandler, LocalChooseUploadHandlerOption, LocalUploadHandler, LocalUploadHandlerOption, RemoteHook, RemoteUploadHandler, RemoteUploadHandlerOption, UploadFileException, UploadHandler, UploadHook, Uploader, VerifyFileException };
+function urlParser(obj) {
+    return Object.keys(obj)
+        .reduce((acc, key) => {
+        acc.push(`${key}=${obj[key]}`);
+        return acc;
+    }, [])
+        .join("&");
+}
+
+class QQDocUploadHandlerOption {
+    exts = []; // 限制文件后缀
+    count = 1; // 限制文件数量
+    type = "file";
+    cate;
+    size = 1024 * 1024 * 20; // B, default 20MB
+    prefix = "";
+    maxAge = 5 * 60; // s default 5分钟 + Code过期时间
+    oauthHandler; // 获取token的钩子函数
+    selectFileView; // 有传这个字段表示要刷新token
+    verifyContentHandler = async () => true; // 验证文件内容
+}
+var QQDocHook;
+(function (QQDocHook) {
+    QQDocHook["GET_TOKEN_OK"] = "getTokenOk";
+    QQDocHook["BEFORE_FILTER"] = "beforeFilter";
+    QQDocHook["AFTER_FILTER"] = "afterFilter";
+})(QQDocHook || (QQDocHook = {}));
+/**
+ * 腾讯文档上传处理器
+ */
+class QQDocUploadHandler extends UploadHandler {
+    _token;
+    _aboutPool = false;
+    constructor(option) {
+        super(optionHander(option, new QQDocUploadHandlerOption()));
+    }
+    async upload() {
+        const self = this;
+        const token = await this.option().oauthHandler(this._token);
+        this._token = token;
+        self.hook().emit(QQDocHook.GET_TOKEN_OK, token);
+        let next = 0;
+        const selectFiles = await this.option().selectFileView(() => {
+            const opt = {
+                fileType: "doc-slide-sheet-pdf",
+                limit: 20,
+                start: next,
+            };
+            self.hook().emit(QQDocHook.BEFORE_FILTER, opt);
+            return self.driveFilter(opt).then((res) => {
+                next = res.next;
+                self.hook().emit(QQDocHook.AFTER_FILTER, res);
+                return res.list.map((item) => {
+                    return {
+                        id: item.ID,
+                        name: item.title,
+                        ext: {
+                            doc: "doc",
+                            sheet: "xls",
+                            slide: "ppt",
+                            pdf: "pdf",
+                            mind: "mind",
+                            folder: "folder",
+                            shortcut: "shortcut",
+                        }[item.type],
+                        size: 0,
+                        url: item.url,
+                        urlPath: item.url,
+                        path: item.url,
+                        type: item.type === 'folder' ? 'folder' : "file",
+                        creatorName: item.creatorName,
+                        time: item.createTime * 1000,
+                        _raw_: item,
+                    };
+                });
+            });
+        });
+        // await verifyFile(selectFiles);
+        return selectFiles;
+    }
+    async driveFilter(opt) {
+        // listType	string	否	见列表类型，默认为 folder
+        // sortType	string	否	见排序类型，默认为 browse
+        // asc	integer	否	是否正序排列，1：正序，0：倒序，默认为 0
+        // folderID	string	否	文件夹唯一标识，根目录 folderID 为 /。默认为 /
+        // start	integer	否	开始值，第一次填 0，后续填 next 的值
+        // limit	integer	否	拉取数，上限为 20
+        // isOwner	integer	否	根据请求者是否为文件拥有者进行过滤，1：返回所有文件，2：返回请求者拥有的文件，默认为返回所有文件
+        // fileType	string	否	指定要拉取的文件品类，可传多个，用减号 - 分割，默认为拉取所有品类。见文件类型
+        const res = await this.request(`/openapi/drive/v2/filter?${urlParser(opt)}`);
+        return res.data.data;
+    }
+    request(path, data, method = "GET") {
+        return new Promise((resolve, reject) => {
+            const baseUrl = "https://docs.qq.com";
+            wx.request({
+                url: baseUrl + path,
+                method,
+                data,
+                header: {
+                    "Access-Token": this._token.access_token,
+                    "Client-Id": this._token.client_id,
+                    "Open-Id": this._token.user_id,
+                },
+                success: (res) => resolve({ status: res.statusCode, data: res.data }),
+                fail: reject,
+            });
+        });
+    }
+    destroy() {
+        this.about();
+    }
+    async about() {
+        this._aboutPool = true;
+    }
+}
+
+export { AboutException, CantUseApiException, EventHub, LocalChooseUploadHandler, LocalChooseUploadHandlerOption, LocalUploadHandler, LocalUploadHandlerOption, QQDocHook, QQDocUploadHandler, QQDocUploadHandlerOption, RemoteHook, RemoteUploadHandler, RemoteUploadHandlerOption, UploadFileException, UploadHandler, UploadHook, Uploader, VerifyFileException };
 //# sourceMappingURL=uploader.esm.js.map

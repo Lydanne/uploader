@@ -18,7 +18,7 @@ export class UrlParser {
   }
 
   static ext(url: string) {
-    const [_, ext = ""] = url.match(/.(\w+)$/);
+    const [_, ext = ""] = url.match(/.(\w+)$/) || [];
     return ext;
   }
 }
