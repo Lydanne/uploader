@@ -66,7 +66,11 @@ export class QQDocUploadHandler extends UploadHandler<
     self.hook().emit(QQDocHook.GET_TOKEN_OK, token);
 
     let next = 0;
+    let isMore = true;
     const selectFiles = await this.option().selectFileView(() => {
+      if (isMore === false) {
+        return Promise.resolve([]);
+      }
       const opt = {
         fileType: "doc-slide-sheet-pdf",
         limit: 20,
@@ -76,27 +80,32 @@ export class QQDocUploadHandler extends UploadHandler<
 
       return self.driveFilter(opt).then((res) => {
         next = res.next;
+        if (next === 0) {
+          isMore = false;
+        }
         self.hook().emit(QQDocHook.AFTER_FILTER, res);
         return res.list.map((item) => {
+          const ext = {
+            doc: "doc",
+            sheet: "xls",
+            slide: "ppt",
+            pdf: "pdf",
+            mind: "mind",
+            folder: "folder",
+            shortcut: "shortcut",
+          }[item.type];
           return {
             id: item.ID,
-            name: item.title,
-            ext: {
-              doc: "doc",
-              sheet: "xls",
-              slide: "ppt",
-              pdf: "pdf",
-              mind: "mind",
-              folder: "folder",
-              shortcut: "shortcut",
-            }[item.type],
+            name: item.title + "." + ext,
+            ext: ext,
             size: 0,
             url: item.url,
             urlPath: item.url,
             path: item.url,
-            type: item.type === 'folder' ? 'folder' : "file",
+            type: item.type === "folder" ? "folder" : "file",
             creatorName: item.creatorName,
             time: item.createTime * 1000,
+            uploaded: true,
             _raw_: item,
           } as FileMeta;
         });

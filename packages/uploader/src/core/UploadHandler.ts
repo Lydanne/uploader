@@ -42,6 +42,7 @@ export interface FileMeta {
   time?: number; // 文件在会话的时间
   duration?: number; // 音视频文件的时长
   creatorName?: string; // 创建人
+  uploaded?: boolean;
   _raw_?: any;
 }
 
