@@ -338,25 +338,31 @@ function transfromFileMeta(tempFiles = [], option) {
         };
     });
 }
+const ossBucketMap = {
+    // record: "https://campusrecord.welife001.com",
+    // video: "https://campusvideo.welife001.com",
+    // img: "https://campus002.welife001.com",
+    // file: "https://campusfile.welife001.com",
+    answer_img: "https://campus002.welife001.com",
+    album: "https://album.welife001.com", //网盘相册
+    disk: "https://disk.welife001.com", //网盘文件
+    record: "https://record.banjixiaoguanjia.com",
+    video: "https://video.banjixiaoguanjia.com",
+    img: "https://img.banjixiaoguanjia.com",
+    file: "https://file.banjixiaoguanjia.com",
+};
+function spurl(key, cate) {
+    if (!key.startsWith("/")) {
+        key = "/" + key;
+    }
+    return ossBucketMap[cate] + key;
+}
 function transfromUploadAliyunFile(files, option) {
     const typeToCate = {
         all: "disk",
         video: "video",
         image: "img",
         file: "file",
-    };
-    const ossBucketMap = {
-        // record: "https://campusrecord.welife001.com",
-        // video: "https://campusvideo.welife001.com",
-        // img: "https://campus002.welife001.com",
-        // file: "https://campusfile.welife001.com",
-        answer_img: "https://campus002.welife001.com",
-        album: "https://album.welife001.com", //网盘相册
-        disk: "https://disk.welife001.com", //网盘文件
-        record: "https://record.banjixiaoguanjia.com",
-        video: "https://video.banjixiaoguanjia.com",
-        img: "https://img.banjixiaoguanjia.com",
-        file: "https://file.banjixiaoguanjia.com",
     };
     return files.map((file) => {
         const cate = option.cate || typeToCate[file.type]; // 如果没有传入cate， 自动推算cate类型
@@ -563,19 +569,22 @@ class QQDocUploadHandlerOption {
     exts = []; // 限制文件后缀
     count = 1; // 限制文件数量
     type = "file";
-    cate;
-    size = 1024 * 1024 * 20; // B, default 20MB
     prefix = "";
-    maxAge = 5 * 60; // s default 5分钟 + Code过期时间
+    transfer; // 是否转存
     oauthHandler; // 获取token的钩子函数
     selectFileView; // 有传这个字段表示要刷新token
     verifyContentHandler = async () => true; // 验证文件内容
+    uploadFileHandler; // 上传文件的钩子函数
 }
 exports.QQDocHook = void 0;
 (function (QQDocHook) {
     QQDocHook["GET_TOKEN_OK"] = "getTokenOk";
     QQDocHook["BEFORE_FILTER"] = "beforeFilter";
     QQDocHook["AFTER_FILTER"] = "afterFilter";
+    QQDocHook["TRANSFER_OK"] = "transferOk";
+    QQDocHook["TRANSFER_BEGIN"] = "transferBegin";
+    QQDocHook["TRANSFER_END"] = "transferEnd";
+    QQDocHook["TRANSFER_ING"] = "transferIng";
 })(exports.QQDocHook || (exports.QQDocHook = {}));
 /**
  * 腾讯文档上传处理器
@@ -637,7 +646,46 @@ class QQDocUploadHandler extends UploadHandler {
             });
         });
         // await verifyFile(selectFiles);
+        if (this.option().transfer)
+            await this.transfer(selectFiles);
         return selectFiles;
+    }
+    async transfer(files) {
+        const prefix = this.option().prefix || "";
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            file.uploaded = false;
+            // const fileID = await this.request<{ data: { fileID: string } }>(
+            //   `/openapi/drive/v2/util/converter?type=2&value=${file._raw_.ID}`
+            // );
+            const task = await this.request(`/openapi/drive/v2/files/${file._raw_.ID}/async-export`, {}, "POST");
+            this.hook().emit(exports.QQDocHook.TRANSFER_BEGIN, task);
+            while (true) {
+                const res = await this.request(`/openapi/drive/v2/files/${file._raw_.ID}/export-progress?operationID=${task.data.data.operationID}`);
+                this.hook().emit(exports.QQDocHook.TRANSFER_ING, res);
+                if (res.data.data.url) {
+                    const downRes = await new Promise((resolve, reject) => wx.downloadFile({
+                        url: res.data.data.url,
+                        success: resolve,
+                        fail: reject,
+                    }));
+                    const tempFilePath = downRes.tempFilePath;
+                    const xgjFile = {
+                        cate: "file",
+                        file: tempFilePath,
+                        new_name: prefix + file._raw_.ID + "/" + file.name,
+                        size: 0,
+                    };
+                    await this.option().uploadFileHandler([xgjFile]);
+                    file.url = spurl(xgjFile.new_name, "file");
+                    file.urlPath = "/" + xgjFile.new_name;
+                    file.uploaded = true;
+                    this.hook().emit(exports.QQDocHook.TRANSFER_END, downRes);
+                    break;
+                }
+                await sleep(1000);
+            }
+        }
     }
     async driveFilter(opt) {
         // listType	string	否	见列表类型，默认为 folder

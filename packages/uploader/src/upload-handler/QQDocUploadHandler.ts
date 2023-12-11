@@ -9,6 +9,12 @@ import {
   VerifyFileException,
 } from "../core/UploadHandler";
 import { urlParser } from "src/utils/urlParams";
+import {
+  UploadAliyunFile,
+  spurl,
+  transfromUploadAliyunFile,
+} from "src/utils/tools";
+import { uploadFileHandler } from "./LocalChooseUploadHandler";
 
 export type OAuthHandlerRes = {
   access_token: string;
@@ -28,21 +34,24 @@ export class QQDocUploadHandlerOption {
   exts: string[] = []; // 限制文件后缀
   count: number = 1; // 限制文件数量
   type: "file" = "file";
-  cate?: Cate;
-  size?: number = 1024 * 1024 * 20; // B, default 20MB
   prefix?: string = "";
-  maxAge?: number = 5 * 60; // s default 5分钟 + Code过期时间
+  transfer?: boolean; // 是否转存
   oauthHandler: OAuthHandler; // 获取token的钩子函数
   selectFileView?: (
     fetch: (type: "next") => Promise<FileMeta[]>
   ) => Promise<FileMeta[]>; // 有传这个字段表示要刷新token
   verifyContentHandler: VerifyContentHandler = async () => true; // 验证文件内容
+  uploadFileHandler: uploadFileHandler; // 上传文件的钩子函数
 }
 
 export enum QQDocHook {
   GET_TOKEN_OK = "getTokenOk",
   BEFORE_FILTER = "beforeFilter",
   AFTER_FILTER = "afterFilter",
+  TRANSFER_OK = "transferOk",
+  TRANSFER_BEGIN = "transferBegin",
+  TRANSFER_END = "transferEnd",
+  TRANSFER_ING = "transferIng",
 }
 
 /**
@@ -114,6 +123,8 @@ export class QQDocUploadHandler extends UploadHandler<
 
     // await verifyFile(selectFiles);
 
+    if (this.option().transfer) await this.transfer(selectFiles);
+
     return selectFiles;
 
     async function verifyFile(files: FileMeta[]) {
@@ -128,6 +139,59 @@ export class QQDocUploadHandler extends UploadHandler<
         if (!(await self.option().verifyContentHandler(file))) {
           throw new VerifyFileException("content", file);
         }
+      }
+    }
+  }
+
+  private async transfer(files: FileMeta[]) {
+    const self = this;
+    const prefix = this.option().prefix || "";
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      file.uploaded = false;
+      // const fileID = await this.request<{ data: { fileID: string } }>(
+      //   `/openapi/drive/v2/util/converter?type=2&value=${file._raw_.ID}`
+      // );
+      const task = await this.request<{ data: { operationID: string } }>(
+        `/openapi/drive/v2/files/${file._raw_.ID}/async-export`,
+        {},
+        "POST"
+      );
+      this.hook().emit(QQDocHook.TRANSFER_BEGIN, task);
+      while (true) {
+        const res = await this.request<{
+          data: { status: string; url: string };
+        }>(
+          `/openapi/drive/v2/files/${file._raw_.ID}/export-progress?operationID=${task.data.data.operationID}`
+        );
+        this.hook().emit(QQDocHook.TRANSFER_ING, res);
+
+        if (res.data.data.url) {
+          const downRes: any = await new Promise((resolve, reject) =>
+            wx.downloadFile({
+              url: res.data.data.url,
+              success: resolve,
+              fail: reject,
+            })
+          );
+          const tempFilePath = downRes.tempFilePath;
+          const xgjFile: UploadAliyunFile = {
+            cate: "file",
+            file: tempFilePath,
+            new_name: prefix + file._raw_.ID + "/" + file.name,
+            size: 0,
+          };
+          await this.option().uploadFileHandler([xgjFile]);
+
+          file.url = spurl(xgjFile.new_name, "file");
+          file.urlPath = "/" + xgjFile.new_name;
+          file.uploaded = true;
+          this.hook().emit(QQDocHook.TRANSFER_END, downRes);
+
+          break;
+        }
+
+        await sleep(1000);
       }
     }
   }
@@ -223,3 +287,8 @@ type FileItem = {
   shortcutID: string;
   isCollaborated: boolean;
 };
+
+function etFilePath(url: string) {
+  const idx = url.indexOf(".com/");
+  return url.substring(idx + 4);
+}

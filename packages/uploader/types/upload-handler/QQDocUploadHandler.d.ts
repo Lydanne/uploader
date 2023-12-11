@@ -1,4 +1,5 @@
-import { Cate, FileMeta, UploadHandler, VerifyContentHandler } from "../core/UploadHandler";
+import { FileMeta, UploadHandler, VerifyContentHandler } from "../core/UploadHandler";
+import { uploadFileHandler } from "./LocalChooseUploadHandler";
 export type OAuthHandlerRes = {
     access_token: string;
     token_type: "Bearer";
@@ -13,18 +14,21 @@ export declare class QQDocUploadHandlerOption {
     exts: string[];
     count: number;
     type: "file";
-    cate?: Cate;
-    size?: number;
     prefix?: string;
-    maxAge?: number;
+    transfer?: boolean;
     oauthHandler: OAuthHandler;
     selectFileView?: (fetch: (type: "next") => Promise<FileMeta[]>) => Promise<FileMeta[]>;
     verifyContentHandler: VerifyContentHandler;
+    uploadFileHandler: uploadFileHandler;
 }
 export declare enum QQDocHook {
     GET_TOKEN_OK = "getTokenOk",
     BEFORE_FILTER = "beforeFilter",
-    AFTER_FILTER = "afterFilter"
+    AFTER_FILTER = "afterFilter",
+    TRANSFER_OK = "transferOk",
+    TRANSFER_BEGIN = "transferBegin",
+    TRANSFER_END = "transferEnd",
+    TRANSFER_ING = "transferIng"
 }
 /**
  * 腾讯文档上传处理器
@@ -34,6 +38,7 @@ export declare class QQDocUploadHandler extends UploadHandler<QQDocUploadHandler
     private _aboutPool;
     constructor(option: QQDocUploadHandlerOption);
     upload(): Promise<FileMeta[]>;
+    private transfer;
     private driveFilter;
     private request;
     destroy(): void;

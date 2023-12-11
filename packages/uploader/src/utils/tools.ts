@@ -34,6 +34,27 @@ export function transfromFileMeta(
   });
 }
 
+const ossBucketMap = {
+  // record: "https://campusrecord.welife001.com",
+  // video: "https://campusvideo.welife001.com",
+  // img: "https://campus002.welife001.com",
+  // file: "https://campusfile.welife001.com",
+  answer_img: "https://campus002.welife001.com",
+  album: "https://album.welife001.com", //网盘相册
+  disk: "https://disk.welife001.com", //网盘文件
+  record: "https://record.banjixiaoguanjia.com",
+  video: "https://video.banjixiaoguanjia.com",
+  img: "https://img.banjixiaoguanjia.com",
+  file: "https://file.banjixiaoguanjia.com",
+};
+
+export function spurl(key: string, cate: string) {
+  if (!key.startsWith("/")) {
+    key = "/" + key;
+  }
+  return ossBucketMap[cate] + key;
+}
+
 export function transfromUploadAliyunFile(
   files: FileMeta[],
   option: any
@@ -43,19 +64,6 @@ export function transfromUploadAliyunFile(
     video: "video",
     image: "img",
     file: "file",
-  };
-  const ossBucketMap = {
-    // record: "https://campusrecord.welife001.com",
-    // video: "https://campusvideo.welife001.com",
-    // img: "https://campus002.welife001.com",
-    // file: "https://campusfile.welife001.com",
-    answer_img: "https://campus002.welife001.com",
-    album: "https://album.welife001.com", //网盘相册
-    disk: "https://disk.welife001.com", //网盘文件
-    record: "https://record.banjixiaoguanjia.com",
-    video: "https://video.banjixiaoguanjia.com",
-    img: "https://img.banjixiaoguanjia.com",
-    file: "https://file.banjixiaoguanjia.com",
   };
 
   return files.map((file) => {
