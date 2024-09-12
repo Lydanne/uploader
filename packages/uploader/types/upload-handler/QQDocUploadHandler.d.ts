@@ -1,5 +1,5 @@
 import { FileMeta, UploadHandler, VerifyContentHandler } from "../core/UploadHandler";
-import { uploadFileHandler } from "./LocalChooseUploadHandler";
+import { uploadFileHandler, type resolveHandler } from "./LocalChooseUploadHandler";
 export type OAuthHandlerRes = {
     access_token: string;
     token_type: "Bearer";
@@ -20,6 +20,7 @@ export declare class QQDocUploadHandlerOption {
     selectFileView?: (fetch: (type: "next") => Promise<FileMeta[]>) => Promise<FileMeta[]>;
     verifyContentHandler: VerifyContentHandler;
     uploadFileHandler: uploadFileHandler;
+    resolveHandler: resolveHandler;
 }
 export declare enum QQDocHook {
     GET_TOKEN_OK = "getTokenOk",

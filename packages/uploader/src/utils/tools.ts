@@ -55,6 +55,16 @@ export function spurl(key: string, cate: string) {
   return ossBucketMap[cate] + key;
 }
 
+export function spurl2(
+  key: string,
+  joinCb: (key: string) => string = (k) => k
+) {
+  if (!key.startsWith("/")) {
+    key = "/" + key;
+  }
+  return joinCb(key);
+}
+
 export function transfromUploadAliyunFile(
   files: FileMeta[],
   option: any
@@ -76,6 +86,7 @@ export function transfromUploadAliyunFile(
       file: file.path,
       new_name: file.urlPath.substr(1),
       size: file.size,
+      uploaded: false,
     };
   });
 }
@@ -88,4 +99,5 @@ export class UploadAliyunFile {
   new_name: string;
   size: number;
   duration?: number;
+  uploaded?: boolean;
 }

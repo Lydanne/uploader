@@ -7,6 +7,8 @@ import {
 } from "../core/UploadHandler";
 import {
   UploadAliyunFile,
+  spurl,
+  spurl2,
   transfromFileMeta,
   transfromUploadAliyunFile,
 } from "src/utils/tools";
@@ -19,6 +21,7 @@ export class LocalChooseUploadHandlerOption {
   size?: number = 1024 * 1024 * 3; // B, default 3MB 限制大小
   prefix?: string = ""; // 资源路径前缀
   uploadFileHandler: uploadFileHandler; // 上传文件的钩子函数
+  resolveHandler: resolveHandler; // 路径拼接函数
   verifyContentHandler?: VerifyContentHandler = async () => true;
 }
 
@@ -26,6 +29,9 @@ export type uploadFileHandler = (
   files: UploadAliyunFile[]
 ) => Promise<string> | void;
 // 上传处理程序的约束
+
+export type resolveHandler = (cate: Cate, key: string) => string;
+// 路径拼接的约束
 
 export class LocalChooseUploadHandler extends UploadHandler<LocalChooseUploadHandlerOption> {
   constructor(option: LocalChooseUploadHandlerOption) {
@@ -49,6 +55,13 @@ export class LocalChooseUploadHandler extends UploadHandler<LocalChooseUploadHan
       if (!(await this.option().verifyContentHandler(file))) {
         throw new VerifyFileException("content", file);
       }
+      const aliFile = uploadAliyunFiles[i];
+      file.urlPath = spurl2(aliFile.new_name);
+      file.url = spurl2(file.urlPath, (key) =>
+        this.option().resolveHandler(aliFile.cate, key)
+      );
+      file.resource = file.urlPath;
+      file.uploaded = aliFile.uploaded;
     }
 
     return files;

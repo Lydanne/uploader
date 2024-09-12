@@ -12,9 +12,13 @@ import { urlParser } from "src/utils/urlParams";
 import {
   UploadAliyunFile,
   spurl,
+  spurl2,
   transfromUploadAliyunFile,
 } from "src/utils/tools";
-import { uploadFileHandler } from "./LocalChooseUploadHandler";
+import {
+  uploadFileHandler,
+  type resolveHandler,
+} from "./LocalChooseUploadHandler";
 
 export type OAuthHandlerRes = {
   access_token: string;
@@ -42,6 +46,7 @@ export class QQDocUploadHandlerOption {
   ) => Promise<FileMeta[]>; // 有传这个字段表示要刷新token
   verifyContentHandler: VerifyContentHandler = async () => true; // 验证文件内容
   uploadFileHandler: uploadFileHandler; // 上传文件的钩子函数
+  resolveHandler: resolveHandler;
 }
 
 export enum QQDocHook {
@@ -183,8 +188,10 @@ export class QQDocUploadHandler extends UploadHandler<
           };
           await this.option().uploadFileHandler([xgjFile]);
 
-          file.url = spurl(xgjFile.new_name, "file");
-          file.urlPath = "/" + xgjFile.new_name;
+          file.urlPath = spurl2(xgjFile.new_name);
+          file.url = spurl2(xgjFile.new_name, (key) =>
+            self.option().resolveHandler(xgjFile.cate, key)
+          );
           file.uploaded = true;
           this.hook().emit(QQDocHook.TRANSFER_END, downRes);
 

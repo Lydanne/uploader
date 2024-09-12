@@ -9,9 +9,11 @@ export declare class LocalChooseUploadHandlerOption {
     size?: number;
     prefix?: string;
     uploadFileHandler: uploadFileHandler;
+    resolveHandler: resolveHandler;
     verifyContentHandler?: VerifyContentHandler;
 }
 export type uploadFileHandler = (files: UploadAliyunFile[]) => Promise<string> | void;
+export type resolveHandler = (cate: Cate, key: string) => string;
 export declare class LocalChooseUploadHandler extends UploadHandler<LocalChooseUploadHandlerOption> {
     constructor(option: LocalChooseUploadHandlerOption);
     upload(): Promise<import("../core/UploadHandler").FileMeta[]>;

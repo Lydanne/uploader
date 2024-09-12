@@ -351,11 +351,11 @@ const ossBucketMap = {
     img: "https://img.banjixiaoguanjia.com",
     file: "https://file.banjixiaoguanjia.com",
 };
-function spurl(key, cate) {
+function spurl2(key, joinCb = (k) => k) {
     if (!key.startsWith("/")) {
         key = "/" + key;
     }
-    return ossBucketMap[cate] + key;
+    return joinCb(key);
 }
 function transfromUploadAliyunFile(files, option) {
     const typeToCate = {
@@ -374,6 +374,7 @@ function transfromUploadAliyunFile(files, option) {
             file: file.path,
             new_name: file.urlPath.substr(1),
             size: file.size,
+            uploaded: false,
         };
     });
 }
@@ -386,9 +387,10 @@ class LocalChooseUploadHandlerOption {
     size = 1024 * 1024 * 3; // B, default 3MB 限制大小
     prefix = ""; // 资源路径前缀
     uploadFileHandler; // 上传文件的钩子函数
+    resolveHandler; // 路径拼接函数
     verifyContentHandler = async () => true;
 }
-// 上传处理程序的约束
+// 路径拼接的约束
 class LocalChooseUploadHandler extends UploadHandler {
     constructor(option) {
         super(optionHander(option, new LocalChooseUploadHandlerOption()));
@@ -404,6 +406,11 @@ class LocalChooseUploadHandler extends UploadHandler {
             if (!(await this.option().verifyContentHandler(file))) {
                 throw new VerifyFileException("content", file);
             }
+            const aliFile = uploadAliyunFiles[i];
+            file.urlPath = spurl2(aliFile.new_name);
+            file.url = spurl2(file.urlPath, (key) => this.option().resolveHandler(aliFile.cate, key));
+            file.resource = file.urlPath;
+            file.uploaded = aliFile.uploaded;
         }
         return files;
         async function selectFile() {
@@ -534,6 +541,7 @@ class LocalUploadHandlerOption {
     size = 1024 * 1024 * 3; // B, default 3MB 限制大小
     prefix = ""; // 资源路径前缀
     uploadFileHandler; // 上传文件的钩子函数
+    resolveHandler; // 路径拼接函数
     verifyContentHandler = async () => true;
 }
 class LocalUploadHandler extends UploadHandler {
@@ -549,6 +557,11 @@ class LocalUploadHandler extends UploadHandler {
             if (!(await this.option().verifyContentHandler(file))) {
                 throw new VerifyFileException("content", file);
             }
+            const aliFile = uploadAliyunFiles[i];
+            file.urlPath = spurl2(aliFile.new_name);
+            file.url = spurl2(file.urlPath, (key) => this.option().resolveHandler(aliFile.cate, key));
+            file.resource = file.urlPath;
+            file.uploaded = aliFile.uploaded;
         }
         return files;
     }
@@ -575,6 +588,7 @@ class QQDocUploadHandlerOption {
     selectFileView; // 有传这个字段表示要刷新token
     verifyContentHandler = async () => true; // 验证文件内容
     uploadFileHandler; // 上传文件的钩子函数
+    resolveHandler;
 }
 exports.QQDocHook = void 0;
 (function (QQDocHook) {
@@ -651,6 +665,7 @@ class QQDocUploadHandler extends UploadHandler {
         return selectFiles;
     }
     async transfer(files) {
+        const self = this;
         const prefix = this.option().prefix || "";
         for (let i = 0; i < files.length; i++) {
             const file = files[i];
@@ -677,8 +692,8 @@ class QQDocUploadHandler extends UploadHandler {
                         size: 0,
                     };
                     await this.option().uploadFileHandler([xgjFile]);
-                    file.url = spurl(xgjFile.new_name, "file");
-                    file.urlPath = "/" + xgjFile.new_name;
+                    file.urlPath = spurl2(xgjFile.new_name);
+                    file.url = spurl2(xgjFile.new_name, (key) => self.option().resolveHandler(xgjFile.cate, key));
                     file.uploaded = true;
                     this.hook().emit(exports.QQDocHook.TRANSFER_END, downRes);
                     break;
