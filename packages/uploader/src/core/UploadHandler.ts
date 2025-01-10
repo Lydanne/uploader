@@ -43,6 +43,7 @@ export interface FileMeta {
   duration?: number; // 音视频文件的时长
   creatorName?: string; // 创建人
   uploaded?: boolean;
+  key?: string; // 存储在OSS的key，与 urlPath 差不多但是少了一个 ‘/‘
   _raw_?: any;
 }
 
