@@ -30,6 +30,7 @@ export interface FileMeta {
     duration?: number;
     creatorName?: string;
     uploaded?: boolean;
+    key?: string;
     _raw_?: any;
 }
 export type HookCb<T> = (data?: T, that?: any) => void;
